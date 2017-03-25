@@ -12,7 +12,7 @@ import br.com.ibssoft.gestao.estoque.*;
 
 public class Gestao implements Serializable{
 	
-	private static final long seriaVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 	
 	private EstoqueMesas estMes;
 	private EstoqueCadeiras estCad;
