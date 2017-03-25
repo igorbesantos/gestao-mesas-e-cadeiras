@@ -29,6 +29,7 @@ import javax.swing.border.EtchedBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JMenuItem;
 
 public class GestaoFrame extends JFrame {
 
@@ -71,6 +72,7 @@ public class GestaoFrame extends JFrame {
 	private JCheckBox checkBoxEOutro;
 	private JCheckBox checkBoxSOutro;
 	private JCheckBox checkBoxCompra;
+	private JMenuItem mntmSalvar;
 	
 	
 
@@ -109,6 +111,10 @@ public class GestaoFrame extends JFrame {
 		
 		JMenu mnArquivo = new JMenu("Arquivo");
 		menuBar.add(mnArquivo);
+		
+		mntmSalvar = new JMenuItem("Salvar");
+		mntmSalvar.addActionListener(mntmSalvarListener);
+		mnArquivo.add(mntmSalvar);
 		contentPane = new JPanel();
 		contentPane.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
 		setContentPane(contentPane);
@@ -702,6 +708,12 @@ public class GestaoFrame extends JFrame {
 			gestaoEstoqueBtn.setEnabled(false);
 			panelEstOpLayout.first(panelEstOp);
 			layoutController.show(panelWorkstation, "estoquePanel");
+			estEOutroPicker.setText("");
+			estEOutroPicker.setEnabled(false);
+			estSOutroPicker.setText("");
+			estSOutroPicker.setEnabled(false);
+			checkBoxSOutro.setSelected(false);
+			checkBoxEOutro.setSelected(false);
 		}
 	};
 	
@@ -748,7 +760,13 @@ public class GestaoFrame extends JFrame {
 			gestaoEstoqueBtn.setEnabled(true);
 			gestaoClienteBtn.setEnabled(true);
 			subTitulo.setText("Informa\u00E7\u00F5es de Estoque");
-			layoutController.show(panelWorkstation, "homePanel");			
+			layoutController.show(panelWorkstation, "homePanel");
+			estEOutroPicker.setText("");
+			estEOutroPicker.setEnabled(false);
+			estSOutroPicker.setText("");
+			estSOutroPicker.setEnabled(false);
+			checkBoxSOutro.setSelected(false);
+			checkBoxEOutro.setSelected(false);
 		}
 	};
 	
@@ -758,6 +776,12 @@ public class GestaoFrame extends JFrame {
 			btnEstSalvar.setEnabled(false);
 			panelEstOpLayout.first(panelEstOp);
 			subTitulo.setText("Gestão de Estoque");
+			estEOutroPicker.setText("");
+			estEOutroPicker.setEnabled(false);
+			estSOutroPicker.setText("");
+			estSOutroPicker.setEnabled(false);
+			checkBoxSOutro.setSelected(false);
+			checkBoxEOutro.setSelected(false);
 		}
 	};
 	
@@ -792,6 +816,12 @@ public class GestaoFrame extends JFrame {
 	ActionListener checkBoxSOutroListener = new ActionListener(){
 		public void actionPerformed(ActionEvent event){
 			estSOutroPicker.setEnabled(checkBoxSOutro.isSelected());
+		}
+	};
+	
+	ActionListener mntmSalvarListener = new ActionListener(){
+		public void actionPerformed(ActionEvent event){
+			gestao.stopOp();
 		}
 	};
 	
