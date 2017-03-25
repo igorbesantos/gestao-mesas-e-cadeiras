@@ -285,7 +285,6 @@ public class GestaoFrame extends JFrame {
 	
 	ActionListener homPanListener = new ActionListener(){
 		public void actionPerformed(ActionEvent event){
-			gestao.getEstCad().adicionaCadeiras(50);//testeeeeeeeeeee
 			updateWorkstation();
 			layoutController.show(panelWorkstation, "homePanel");
 		}
