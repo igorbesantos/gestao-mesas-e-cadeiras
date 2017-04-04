@@ -30,6 +30,11 @@ import javax.swing.border.CompoundBorder;
 import javax.swing.JComboBox;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JMenuItem;
+import br.com.ibssoft.gestao.cliente.Cliente;
+import javax.swing.border.SoftBevelBorder;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.ListSelectionModel;
 
 public class GestaoFrame extends JFrame {
 
@@ -41,11 +46,14 @@ public class GestaoFrame extends JFrame {
 	private CardLayout panelEstOpLayout;
 	private JTextField estEOutroPicker;
 	private JTextField estSOutroPicker;
+	private JTextField txtNome;
+	private JTextField txtTel;
 	private JPanel panelWorkstation;
 	private JPanel homePanel;
 	private JPanel estoquePanel;
 	private JPanel clientePanel;
 	private JPanel panelEstOp;
+	private JPanel panelClientCard;
 	private JLabel subTitulo;
 	private JLabel totJogLbl = new JLabel("0");
 	private JLabel totCadLbl = new JLabel("0");
@@ -53,6 +61,7 @@ public class GestaoFrame extends JFrame {
 	private JLabel mesDispLbl = new JLabel("0");
 	private JLabel cadDispLbl = new JLabel("0");
 	private JLabel jogDispLbl = new JLabel("0");
+	private JLabel totCliLbl = new JLabel("0");
 	private Gestao gestao = new Gestao();
 	private JButton btnEstInicio;
 	private JButton btnEstAnterior;
@@ -61,6 +70,10 @@ public class GestaoFrame extends JFrame {
 	private JButton btnOp1Saida;
 	private JButton gestaoEstoqueBtn;
 	private JButton gestaoClienteBtn;
+	private JButton btnAdicionarCliente;
+	private JButton btnRemoverCliente;
+	private JButton btnCliAnterior;
+	private JButton btnCadastrarCliente;
 	private JComboBox estSProdutoPicker;
 	private JComboBox estEProdutoPicker; 
 	private JSpinner estSQtdPicker;
@@ -73,6 +86,8 @@ public class GestaoFrame extends JFrame {
 	private JCheckBox checkBoxSOutro;
 	private JCheckBox checkBoxCompra;
 	private JMenuItem mntmSalvar;
+	private JTextArea txtrInformaesAqui = new JTextArea();
+	private JTextArea txtEnd;
 	
 	
 
@@ -154,7 +169,7 @@ public class GestaoFrame extends JFrame {
 		panelSubTitulo.setBorder(new EtchedBorder(EtchedBorder.RAISED, null, null));
 		panelMain.add(panelSubTitulo, BorderLayout.NORTH);
 		
-		subTitulo = new JLabel("Informa\u00E7\u00F5es de Estoque");
+		subTitulo = new JLabel("Informa\u00E7\u00F5es de Clientes e Estoque");
 		panelSubTitulo.add(subTitulo);
 		subTitulo.setHorizontalAlignment(SwingConstants.CENTER);
 		subTitulo.setForeground(Color.BLUE);
@@ -170,9 +185,9 @@ public class GestaoFrame extends JFrame {
 		homePanel = new JPanel();
 		GridBagLayout gbl_homePanel = new GridBagLayout();
 		gbl_homePanel.columnWidths = new int[]{187, 0, 0, 0, 0, 0, 0};
-		gbl_homePanel.rowHeights = new int[]{29, 29, 29, 29, 29, 29, 0};
+		gbl_homePanel.rowHeights = new int[]{29, 29, 29, 29, 29, 29, 0, 0, 0};
 		gbl_homePanel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_homePanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_homePanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		homePanel.setLayout(gbl_homePanel);
 		
 		JLabel label_3 = new JLabel("Total de Cadeiras:");
@@ -242,30 +257,30 @@ public class GestaoFrame extends JFrame {
 		gbc_totMesLbl.gridy = 2;
 		homePanel.add(totMesLbl, gbc_totMesLbl);
 		
-		JLabel label_6 = new JLabel("Jogos Dispon\u00EDveis:");
-		GridBagConstraints gbc_label_6 = new GridBagConstraints();
-		gbc_label_6.gridheight = 2;
-		gbc_label_6.insets = new Insets(0, 0, 5, 5);
-		gbc_label_6.gridx = 4;
-		gbc_label_6.gridy = 2;
-		homePanel.add(label_6, gbc_label_6);
-		label_6.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 22));
+		JLabel label_4 = new JLabel("Mesas Dispon\u00EDveis:");
+		GridBagConstraints gbc_label_4 = new GridBagConstraints();
+		gbc_label_4.gridheight = 2;
+		gbc_label_4.insets = new Insets(0, 0, 5, 5);
+		gbc_label_4.gridx = 4;
+		gbc_label_4.gridy = 2;
+		homePanel.add(label_4, gbc_label_4);
+		label_4.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 22));
 		
-		GridBagConstraints gbc_jogDispLbl = new GridBagConstraints();
-		gbc_jogDispLbl.gridheight = 2;
-		gbc_jogDispLbl.insets = new Insets(0, 0, 5, 0);
-		gbc_jogDispLbl.gridx = 5;
-		gbc_jogDispLbl.gridy = 2;
-		homePanel.add(jogDispLbl, gbc_jogDispLbl);
-		jogDispLbl.setForeground(new Color(70, 130, 180));
-		jogDispLbl.setFont(new Font("Microsoft YaHei UI", Font.BOLD, 22));
-		jogDispLbl.setBackground(new Color(248, 248, 255));
+		GridBagConstraints gbc_mesDispLbl = new GridBagConstraints();
+		gbc_mesDispLbl.gridheight = 2;
+		gbc_mesDispLbl.insets = new Insets(0, 0, 5, 0);
+		gbc_mesDispLbl.gridx = 5;
+		gbc_mesDispLbl.gridy = 2;
+		homePanel.add(mesDispLbl, gbc_mesDispLbl);
+		mesDispLbl.setForeground(new Color(70, 130, 180));
+		mesDispLbl.setFont(new Font("Microsoft YaHei UI", Font.BOLD, 22));
+		mesDispLbl.setBackground(new Color(248, 248, 255));
 		
 		JLabel label_11 = new JLabel("Total de Jogos:");
 		label_11.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 22));
 		GridBagConstraints gbc_label_11 = new GridBagConstraints();
 		gbc_label_11.gridheight = 2;
-		gbc_label_11.insets = new Insets(0, 0, 0, 5);
+		gbc_label_11.insets = new Insets(0, 0, 5, 5);
 		gbc_label_11.gridx = 0;
 		gbc_label_11.gridy = 4;
 		homePanel.add(label_11, gbc_label_11);
@@ -276,89 +291,284 @@ public class GestaoFrame extends JFrame {
 		totJogLbl.setBackground(new Color(248, 248, 255));
 		GridBagConstraints gbc_totJogLbl = new GridBagConstraints();
 		gbc_totJogLbl.gridheight = 2;
-		gbc_totJogLbl.insets = new Insets(0, 0, 0, 5);
+		gbc_totJogLbl.insets = new Insets(0, 0, 5, 5);
 		gbc_totJogLbl.gridx = 1;
 		gbc_totJogLbl.gridy = 4;
 		homePanel.add(totJogLbl, gbc_totJogLbl);
 		
-		JLabel label_4 = new JLabel("Mesas Dispon\u00EDveis:");
-		GridBagConstraints gbc_label_4 = new GridBagConstraints();
-		gbc_label_4.gridheight = 2;
-		gbc_label_4.insets = new Insets(0, 0, 5, 5);
-		gbc_label_4.gridx = 4;
-		gbc_label_4.gridy = 4;
-		homePanel.add(label_4, gbc_label_4);
-		label_4.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 22));
+		JLabel label_6 = new JLabel("Jogos Dispon\u00EDveis:");
+		GridBagConstraints gbc_label_6 = new GridBagConstraints();
+		gbc_label_6.gridheight = 2;
+		gbc_label_6.insets = new Insets(0, 0, 5, 5);
+		gbc_label_6.gridx = 4;
+		gbc_label_6.gridy = 4;
+		homePanel.add(label_6, gbc_label_6);
+		label_6.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 22));
 		
-		GridBagConstraints gbc_mesDispLbl = new GridBagConstraints();
-		gbc_mesDispLbl.gridheight = 2;
-		gbc_mesDispLbl.insets = new Insets(0, 0, 5, 0);
-		gbc_mesDispLbl.gridx = 5;
-		gbc_mesDispLbl.gridy = 4;
-		homePanel.add(mesDispLbl, gbc_mesDispLbl);
-		mesDispLbl.setForeground(new Color(70, 130, 180));
-		mesDispLbl.setFont(new Font("Microsoft YaHei UI", Font.BOLD, 22));
-		mesDispLbl.setBackground(new Color(248, 248, 255));
+		GridBagConstraints gbc_jogDispLbl = new GridBagConstraints();
+		gbc_jogDispLbl.gridheight = 2;
+		gbc_jogDispLbl.insets = new Insets(0, 0, 5, 0);
+		gbc_jogDispLbl.gridx = 5;
+		gbc_jogDispLbl.gridy = 4;
+		homePanel.add(jogDispLbl, gbc_jogDispLbl);
+		jogDispLbl.setForeground(new Color(70, 130, 180));
+		jogDispLbl.setFont(new Font("Microsoft YaHei UI", Font.BOLD, 22));
+		jogDispLbl.setBackground(new Color(248, 248, 255));
+		
+		JLabel label_15 = new JLabel("Total de Clientes:");
+		label_15.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 22));
+		GridBagConstraints gbc_label_15 = new GridBagConstraints();
+		gbc_label_15.gridheight = 2;
+		gbc_label_15.insets = new Insets(0, 0, 5, 5);
+		gbc_label_15.gridx = 0;
+		gbc_label_15.gridy = 6;
+		homePanel.add(label_15, gbc_label_15);
+		
+		totCliLbl.setFont(new Font("Microsoft YaHei UI", Font.BOLD, 22));
+		totCliLbl.setForeground(new Color(70, 130, 180));
+		GridBagConstraints gbc_totCliLbl = new GridBagConstraints();
+		gbc_totCliLbl.gridheight = 2;
+		gbc_totCliLbl.insets = new Insets(0, 0, 5, 5);
+		gbc_totCliLbl.gridx = 1;
+		gbc_totCliLbl.gridy = 6;
+		homePanel.add(totCliLbl, gbc_totCliLbl);
 		
 		clientePanel = new JPanel();
 		panelWorkstation.add(clientePanel, "clientePanel");
+		clientePanel.setLayout(new BorderLayout(0, 0));
 		
-		JButton voltarCBtn = new JButton("Voltar C");
-		voltarCBtn.addActionListener(homPanListener);
-		clientePanel.add(voltarCBtn);
+		JPanel panelMenEsq = new JPanel();
+		panelMenEsq.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		clientePanel.add(panelMenEsq, BorderLayout.WEST);
+		GridBagLayout gbl_panelMenEsq = new GridBagLayout();
+		gbl_panelMenEsq.columnWidths = new int[]{120, 0};
+		gbl_panelMenEsq.rowHeights = new int[]{23, 0, 0, 0, 0, 0};
+		gbl_panelMenEsq.columnWeights = new double[]{0.0, Double.MIN_VALUE};
+		gbl_panelMenEsq.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		panelMenEsq.setLayout(gbl_panelMenEsq);
+		
+		JButton btnCliInicio = new JButton("In\u00EDcio");
+		btnCliInicio.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
+		GridBagConstraints gbc_btnCliInicio = new GridBagConstraints();
+		gbc_btnCliInicio.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnCliInicio.insets = new Insets(0, 0, 5, 0);
+		gbc_btnCliInicio.gridx = 0;
+		gbc_btnCliInicio.gridy = 0;
+		panelMenEsq.add(btnCliInicio, gbc_btnCliInicio);
+		
+		btnCliAnterior = new JButton("Anterior");
+		btnCliAnterior.addActionListener(btnCliAnteriorListener);
+		btnCliAnterior.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
+		GridBagConstraints gbc_btnCliAnterior = new GridBagConstraints();
+		gbc_btnCliAnterior.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnCliAnterior.insets = new Insets(0, 0, 5, 0);
+		gbc_btnCliAnterior.gridx = 0;
+		gbc_btnCliAnterior.gridy = 1;
+		panelMenEsq.add(btnCliAnterior, gbc_btnCliAnterior);
+		btnCliInicio.addActionListener(homPanListener);
+		
+		panelClientCard = new JPanel();
+		panelClientCard.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		clientePanel.add(panelClientCard, BorderLayout.CENTER);
+		panelClientCard.setLayout(new CardLayout(0, 0));
+		
+		JPanel panCli = new JPanel();
+		panCli.setBorder(null);
+		panelClientCard.add(panCli, "panCli");
+		panCli.setLayout(new BorderLayout(0, 0));
+		
+		JPanel panelListaCliente = new JPanel();
+		panCli.add(panelListaCliente, BorderLayout.CENTER);
+		panelListaCliente.setLayout(new BorderLayout(0, 0));
+		//TODO Cliente Table
+		
+		
+		
+		JPanel panelAddRemMenu = new JPanel();
+		panCli.add(panelAddRemMenu, BorderLayout.SOUTH);
+		panelAddRemMenu.setLayout(new GridLayout(0, 2, 0, 0));
+		
+		btnAdicionarCliente = new JButton("Adicionar Cliente");
+		panelAddRemMenu.add(btnAdicionarCliente);
+		btnAdicionarCliente.addActionListener(btnAdicionarClienteListener);
+		btnAdicionarCliente.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
+		
+		btnRemoverCliente = new JButton("Remover Cliente");
+		panelAddRemMenu.add(btnRemoverCliente);
+		btnRemoverCliente.addActionListener(btnRemoverClienteListener);
+		btnRemoverCliente.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
+		
+		JPanel panelAddCliente = new JPanel();
+		panelClientCard.add(panelAddCliente, "panAddCli");
+		GridBagLayout gbl_panelAddCliente = new GridBagLayout();
+		gbl_panelAddCliente.columnWidths = new int[]{426, 0};
+		gbl_panelAddCliente.rowHeights = new int[]{40, 40, 80, 0, 0};
+		gbl_panelAddCliente.columnWeights = new double[]{0.0, Double.MIN_VALUE};
+		gbl_panelAddCliente.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		panelAddCliente.setLayout(gbl_panelAddCliente);
+		
+		JPanel panelNom = new JPanel();
+		panelNom.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		GridBagLayout gbl_panelNom = new GridBagLayout();
+		gbl_panelNom.columnWidths = new int[]{70, 348, 0};
+		gbl_panelNom.rowHeights = new int[]{29, 0};
+		gbl_panelNom.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+		gbl_panelNom.rowWeights = new double[]{0.0, Double.MIN_VALUE};
+		panelNom.setLayout(gbl_panelNom);
+		
+		JLabel lblNome = new JLabel("Nome:    ");
+		GridBagConstraints gbc_lblNome = new GridBagConstraints();
+		gbc_lblNome.fill = GridBagConstraints.VERTICAL;
+		gbc_lblNome.anchor = GridBagConstraints.WEST;
+		gbc_lblNome.insets = new Insets(0, 0, 0, 5);
+		gbc_lblNome.gridx = 0;
+		gbc_lblNome.gridy = 0;
+		panelNom.add(lblNome, gbc_lblNome);
+		lblNome.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 22));
+		GridBagConstraints gbc_panelNom = new GridBagConstraints();
+		gbc_panelNom.fill = GridBagConstraints.HORIZONTAL;
+		gbc_panelNom.insets = new Insets(0, 0, 5, 0);
+		gbc_panelNom.gridx = 0;
+		gbc_panelNom.gridy = 0;
+		panelAddCliente.add(panelNom, gbc_panelNom);
+		
+		txtNome = new JTextField();
+		GridBagConstraints gbc_txtNome = new GridBagConstraints();
+		gbc_txtNome.fill = GridBagConstraints.BOTH;
+		gbc_txtNome.gridx = 1;
+		gbc_txtNome.gridy = 0;
+		panelNom.add(txtNome, gbc_txtNome);
+		txtNome.setFont(new Font("Dialog", Font.PLAIN, 16));
+		txtNome.setColumns(10);
+		
+		JPanel panelTel = new JPanel();
+		panelTel.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		GridBagLayout gbl_panelTel = new GridBagLayout();
+		gbl_panelTel.columnWidths = new int[]{96, 351, 0};
+		gbl_panelTel.rowHeights = new int[]{29, 0};
+		gbl_panelTel.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+		gbl_panelTel.rowWeights = new double[]{0.0, Double.MIN_VALUE};
+		panelTel.setLayout(gbl_panelTel);
+		
+		JLabel lblTelefone = new JLabel("Tel:        ");
+		lblTelefone.setHorizontalAlignment(SwingConstants.LEFT);
+		GridBagConstraints gbc_lblTelefone = new GridBagConstraints();
+		gbc_lblTelefone.anchor = GridBagConstraints.WEST;
+		gbc_lblTelefone.insets = new Insets(0, 0, 0, 5);
+		gbc_lblTelefone.gridx = 0;
+		gbc_lblTelefone.gridy = 0;
+		panelTel.add(lblTelefone, gbc_lblTelefone);
+		lblTelefone.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 22));
+		
+		txtTel = new JTextField();
+		GridBagConstraints gbc_txtTel = new GridBagConstraints();
+		gbc_txtTel.fill = GridBagConstraints.BOTH;
+		gbc_txtTel.gridx = 1;
+		gbc_txtTel.gridy = 0;
+		panelTel.add(txtTel, gbc_txtTel);
+		txtTel.setFont(new Font("Dialog", Font.PLAIN, 16));
+		txtTel.setColumns(10);
+		GridBagConstraints gbc_panelTel = new GridBagConstraints();
+		gbc_panelTel.fill = GridBagConstraints.HORIZONTAL;
+		gbc_panelTel.insets = new Insets(0, 0, 5, 0);
+		gbc_panelTel.gridx = 0;
+		gbc_panelTel.gridy = 1;
+		panelAddCliente.add(panelTel, gbc_panelTel);
+		
+		JPanel panelEnd = new JPanel();
+		panelEnd.setBorder(new SoftBevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		GridBagLayout gbl_panelEnd = new GridBagLayout();
+		gbl_panelEnd.columnWidths = new int[]{102, 342, 0};
+		gbl_panelEnd.rowHeights = new int[]{70, 0};
+		gbl_panelEnd.columnWeights = new double[]{0.0, 0.0, Double.MIN_VALUE};
+		gbl_panelEnd.rowWeights = new double[]{0.0, Double.MIN_VALUE};
+		panelEnd.setLayout(gbl_panelEnd);
+		
+		JLabel lblEndereo = new JLabel("End.:");
+		lblEndereo.setHorizontalAlignment(SwingConstants.CENTER);
+		GridBagConstraints gbc_lblEndereo = new GridBagConstraints();
+		gbc_lblEndereo.fill = GridBagConstraints.VERTICAL;
+		gbc_lblEndereo.anchor = GridBagConstraints.WEST;
+		gbc_lblEndereo.insets = new Insets(0, 0, 0, 5);
+		gbc_lblEndereo.gridx = 0;
+		gbc_lblEndereo.gridy = 0;
+		panelEnd.add(lblEndereo, gbc_lblEndereo);
+		lblEndereo.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 22));
+		
+		txtEnd = new JTextArea();
+		GridBagConstraints gbc_txtEnd = new GridBagConstraints();
+		gbc_txtEnd.fill = GridBagConstraints.BOTH;
+		gbc_txtEnd.gridx = 1;
+		gbc_txtEnd.gridy = 0;
+		panelEnd.add(txtEnd, gbc_txtEnd);
+		txtEnd.setFont(new Font("Dialog", Font.PLAIN, 16));
+		GridBagConstraints gbc_panelEnd = new GridBagConstraints();
+		gbc_panelEnd.insets = new Insets(0, 0, 5, 0);
+		gbc_panelEnd.fill = GridBagConstraints.BOTH;
+		gbc_panelEnd.gridx = 0;
+		gbc_panelEnd.gridy = 2;
+		panelAddCliente.add(panelEnd, gbc_panelEnd);
+		
+		btnCadastrarCliente = new JButton("Cadastrar Cliente");
+		btnCadastrarCliente.addActionListener(btnCadastrarClienteListener);
+		GridBagConstraints gbc_btnCadastrarCliente = new GridBagConstraints();
+		gbc_btnCadastrarCliente.gridx = 0;
+		gbc_btnCadastrarCliente.gridy = 3;
+		panelAddCliente.add(btnCadastrarCliente, gbc_btnCadastrarCliente);
+		
+		JPanel panelRemCliente = new JPanel();
+		panelClientCard.add(panelRemCliente, "panRemCli");
+		
+		JLabel lblpainlDeRemover = new JLabel("-PAIN\u00C9L DE REMOVER CLIENTE-");
+		lblpainlDeRemover.setFont(new Font("Dialog", Font.ITALIC, 25));
+		panelRemCliente.add(lblpainlDeRemover);
 		
 		estoquePanel = new JPanel();
 		panelWorkstation.add(estoquePanel, "estoquePanel");
-		GridBagLayout gbl_estoquePanel = new GridBagLayout();
-		gbl_estoquePanel.columnWidths = new int[]{0, 0, 0, 0};
-		gbl_estoquePanel.rowHeights = new int[]{0, 0, 0, 0, 0};
-		gbl_estoquePanel.columnWeights = new double[]{1.0, 0.0, 1.0, Double.MIN_VALUE};
-		gbl_estoquePanel.rowWeights = new double[]{1.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		estoquePanel.setLayout(gbl_estoquePanel);
+		estoquePanel.setLayout(new BorderLayout(0, 0));
 		
 		JPanel panelEstMenu = new JPanel();
 		panelEstMenu.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		GridBagConstraints gbc_panelEstMenu = new GridBagConstraints();
-		gbc_panelEstMenu.gridheight = 2;
-		gbc_panelEstMenu.insets = new Insets(0, 0, 5, 5);
-		gbc_panelEstMenu.fill = GridBagConstraints.BOTH;
-		gbc_panelEstMenu.gridx = 0;
-		gbc_panelEstMenu.gridy = 0;
-		estoquePanel.add(panelEstMenu, gbc_panelEstMenu);
-		panelEstMenu.setLayout(new GridLayout(0, 1, 0, 0));
+		estoquePanel.add(panelEstMenu, BorderLayout.WEST);
+		GridBagLayout gbl_panelEstMenu = new GridBagLayout();
+		gbl_panelEstMenu.columnWidths = new int[]{120, 0};
+		gbl_panelEstMenu.rowHeights = new int[]{30, 30, 30, 0};
+		gbl_panelEstMenu.columnWeights = new double[]{0.0, Double.MIN_VALUE};
+		gbl_panelEstMenu.rowWeights = new double[]{0.0, 0.0, 0.0, Double.MIN_VALUE};
+		panelEstMenu.setLayout(gbl_panelEstMenu);
 		
-		btnEstInicio = new JButton("Voltar");
+		btnEstInicio = new JButton("In\u00EDcio");
 		btnEstInicio.addActionListener(homPanListener);
 		btnEstInicio.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
-		panelEstMenu.add(btnEstInicio);
+		GridBagConstraints gbc_btnEstInicio = new GridBagConstraints();
+		gbc_btnEstInicio.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnEstInicio.insets = new Insets(0, 0, 5, 0);
+		gbc_btnEstInicio.gridx = 0;
+		gbc_btnEstInicio.gridy = 0;
+		panelEstMenu.add(btnEstInicio, gbc_btnEstInicio);
 		
 		btnEstAnterior = new JButton("Anterior");
 		btnEstAnterior.addActionListener(estAnteriorListener);
 		btnEstAnterior.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
-		panelEstMenu.add(btnEstAnterior);
+		GridBagConstraints gbc_btnEstAnterior = new GridBagConstraints();
+		gbc_btnEstAnterior.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnEstAnterior.insets = new Insets(0, 0, 5, 0);
+		gbc_btnEstAnterior.gridx = 0;
+		gbc_btnEstAnterior.gridy = 1;
+		panelEstMenu.add(btnEstAnterior, gbc_btnEstAnterior);
 		
 		btnEstSalvar = new JButton("Salvar");
 		btnEstSalvar.addActionListener(estExecListener);
 		btnEstSalvar.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
-		panelEstMenu.add(btnEstSalvar);
-		
-		JSeparator separator = new JSeparator();
-		GridBagConstraints gbc_separator = new GridBagConstraints();
-		gbc_separator.gridheight = 2;
-		gbc_separator.insets = new Insets(0, 0, 5, 5);
-		gbc_separator.gridx = 1;
-		gbc_separator.gridy = 0;
-		estoquePanel.add(separator, gbc_separator);
+		GridBagConstraints gbc_btnEstSalvar = new GridBagConstraints();
+		gbc_btnEstSalvar.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnEstSalvar.gridx = 0;
+		gbc_btnEstSalvar.gridy = 2;
+		panelEstMenu.add(btnEstSalvar, gbc_btnEstSalvar);
 		
 		panelEstOp = new JPanel();
 		panelEstOp.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		GridBagConstraints gbc_panelEstOp = new GridBagConstraints();
-		gbc_panelEstOp.gridheight = 2;
-		gbc_panelEstOp.insets = new Insets(0, 0, 5, 0);
-		gbc_panelEstOp.fill = GridBagConstraints.BOTH;
-		gbc_panelEstOp.gridx = 2;
-		gbc_panelEstOp.gridy = 0;
-		estoquePanel.add(panelEstOp, gbc_panelEstOp);
+		estoquePanel.add(panelEstOp, BorderLayout.CENTER);
 		panelEstOpLayout= new CardLayout(0,0);
 		panelEstOp.setLayout(panelEstOpLayout);
 		
@@ -453,7 +663,7 @@ public class GestaoFrame extends JFrame {
 		GridBagLayout gbl_panelSaidMot = new GridBagLayout();
 		gbl_panelSaidMot.columnWidths = new int[]{38, 36, 55, 0};
 		gbl_panelSaidMot.rowHeights = new int[]{23, 0, 0, 0, 0, 0};
-		gbl_panelSaidMot.columnWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
+		gbl_panelSaidMot.columnWeights = new double[]{1.0, 0.0, 1.0, Double.MIN_VALUE};
 		gbl_panelSaidMot.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
 		panelSaidMot.setLayout(gbl_panelSaidMot);
 		
@@ -478,6 +688,7 @@ public class GestaoFrame extends JFrame {
 		JLabel lblValorR_1 = new JLabel("Valor:  R$");
 		lblValorR_1.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 13));
 		GridBagConstraints gbc_lblValorR_1 = new GridBagConstraints();
+		gbc_lblValorR_1.anchor = GridBagConstraints.WEST;
 		gbc_lblValorR_1.insets = new Insets(0, 0, 5, 5);
 		gbc_lblValorR_1.gridx = 1;
 		gbc_lblValorR_1.gridy = 1;
@@ -602,7 +813,7 @@ public class GestaoFrame extends JFrame {
 		GridBagLayout gbl_panelEntMot = new GridBagLayout();
 		gbl_panelEntMot.columnWidths = new int[]{41, 0, 36, 0};
 		gbl_panelEntMot.rowHeights = new int[]{14, 0, 0, 0, 0};
-		gbl_panelEntMot.columnWeights = new double[]{1.0, 1.0, 1.0, Double.MIN_VALUE};
+		gbl_panelEntMot.columnWeights = new double[]{1.0, 0.0, 1.0, Double.MIN_VALUE};
 		gbl_panelEntMot.rowWeights = new double[]{1.0, 0.0, 1.0, 0.0, Double.MIN_VALUE};
 		panelEntMot.setLayout(gbl_panelEntMot);
 		
@@ -629,7 +840,7 @@ public class GestaoFrame extends JFrame {
 		lblValorR.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
 		GridBagConstraints gbc_lblValorR = new GridBagConstraints();
 		gbc_lblValorR.insets = new Insets(0, 0, 5, 5);
-		gbc_lblValorR.anchor = GridBagConstraints.EAST;
+		gbc_lblValorR.anchor = GridBagConstraints.WEST;
 		gbc_lblValorR.gridx = 1;
 		gbc_lblValorR.gridy = 1;
 		panelEntMot.add(lblValorR, gbc_lblValorR);
@@ -664,28 +875,14 @@ public class GestaoFrame extends JFrame {
 		gbc_estEOutroPicker.gridy = 3;
 		panelEntMot.add(estEOutroPicker, gbc_estEOutroPicker);
 		
-		JSeparator separator_2 = new JSeparator();
-		GridBagConstraints gbc_separator_2 = new GridBagConstraints();
-		gbc_separator_2.gridwidth = 3;
-		gbc_separator_2.insets = new Insets(0, 0, 5, 0);
-		gbc_separator_2.gridx = 0;
-		gbc_separator_2.gridy = 2;
-		estoquePanel.add(separator_2, gbc_separator_2);
-		
 		JPanel panelInfo = new JPanel();
 		panelInfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		GridBagConstraints gbc_panelInfo = new GridBagConstraints();
-		gbc_panelInfo.gridwidth = 3;
-		gbc_panelInfo.fill = GridBagConstraints.BOTH;
-		gbc_panelInfo.gridx = 0;
-		gbc_panelInfo.gridy = 3;
-		estoquePanel.add(panelInfo, gbc_panelInfo);
+		estoquePanel.add(panelInfo, BorderLayout.SOUTH);
 		panelInfo.setLayout(new BorderLayout(0, 0));
 		
 		JLabel lblInformaesELembretes = new JLabel("    Informa\u00E7\u00F5es e Lembretes: ");
 		panelInfo.add(lblInformaesELembretes, BorderLayout.NORTH);
 		
-		JTextArea txtrInformaesAqui = new JTextArea();
 		txtrInformaesAqui.setForeground(Color.BLUE);
 		txtrInformaesAqui.setFont(new Font("Monospaced", Font.PLAIN, 12));
 		txtrInformaesAqui.setText("Informa\u00E7\u00F5es aqui...");
@@ -697,6 +894,11 @@ public class GestaoFrame extends JFrame {
 		public void actionPerformed(ActionEvent event){
 			subTitulo.setText("Gestão de Clientes");
 			layoutController.show(panelWorkstation, "clientePanel");
+			gestaoClienteBtn.setEnabled(false);
+			gestaoEstoqueBtn.setEnabled(true);
+			btnCliAnterior.setEnabled(false);
+			btnAdicionarCliente.setEnabled(true);
+			btnRemoverCliente.setEnabled(true);
 		}
 	};
 	
@@ -706,6 +908,7 @@ public class GestaoFrame extends JFrame {
 			btnEstAnterior.setEnabled(false);
 			btnEstSalvar.setEnabled(false);
 			gestaoEstoqueBtn.setEnabled(false);
+			gestaoClienteBtn.setEnabled(true);
 			panelEstOpLayout.first(panelEstOp);
 			layoutController.show(panelWorkstation, "estoquePanel");
 			estEOutroPicker.setText("");
@@ -745,14 +948,29 @@ public class GestaoFrame extends JFrame {
 			}else{
 				switch((String) estSProdutoPicker.getSelectedItem()){
 					case "Mesas":
-						gestao.getEstMes().removeMesas((Integer) estSQtdPicker.getValue());
+						try {
+							gestao.getEstMes().removeMesas((Integer) estSQtdPicker.getValue());
+						} catch (IllegalArgumentException e2) {
+							txtrInformaesAqui.setText("Valor Inválido");
+							txtrInformaesAqui.setForeground(Color.RED);
+						}
 						break;
 					case "Cadeiras":
-						gestao.getEstCad().removeCadeiras((Integer) estSQtdPicker.getValue()); 
+						try {
+							gestao.getEstCad().removeCadeiras((Integer) estSQtdPicker.getValue());
+						} catch (IllegalArgumentException e1) {
+							txtrInformaesAqui.setText("Valor Inválido");
+							txtrInformaesAqui.setForeground(Color.RED);
+						} 
 						break;
 					case "Jogos":
-						gestao.getEstMes().removeMesas((Integer) estSQtdPicker.getValue());
-						gestao.getEstCad().removeCadeiras(((Integer) estSQtdPicker.getValue())*4);
+						try {
+							gestao.getEstMes().removeMesas((Integer) estSQtdPicker.getValue());
+							gestao.getEstCad().removeCadeiras(((Integer) estSQtdPicker.getValue())*4);
+						} catch (IllegalArgumentException e) {
+							txtrInformaesAqui.setText("Valor Inválido");
+							txtrInformaesAqui.setForeground(Color.RED);
+						}
 						break;
 				}
 			}
@@ -825,6 +1043,51 @@ public class GestaoFrame extends JFrame {
 		}
 	};
 	
+	ActionListener btnAdicionarClienteListener = new ActionListener(){
+		public void actionPerformed(ActionEvent event){
+			CardLayout layout = (CardLayout) panelClientCard.getLayout();
+			layout.show(panelClientCard, "panAddCli");
+			btnCliAnterior.setEnabled(true);
+			btnAdicionarCliente.setEnabled(false);
+			btnRemoverCliente.setEnabled(true);
+		}
+	};
+	
+	ActionListener btnRemoverClienteListener = new ActionListener(){
+		public void actionPerformed(ActionEvent event){
+			CardLayout layout = (CardLayout) panelClientCard.getLayout();
+			layout.show(panelClientCard, "panRemCli");
+			btnCliAnterior.setEnabled(true);
+			btnAdicionarCliente.setEnabled(true);
+			btnRemoverCliente.setEnabled(false);
+		}
+	};
+	
+	ActionListener btnCliAnteriorListener = new ActionListener(){
+		public void actionPerformed(ActionEvent event){
+			CardLayout layout = (CardLayout) panelClientCard.getLayout();
+			layout.show(panelClientCard, "panCli");
+			btnCliAnterior.setEnabled(false);
+			btnAdicionarCliente.setEnabled(true);
+			btnRemoverCliente.setEnabled(true);
+		}
+	};
+	
+	ActionListener btnCadastrarClienteListener = new ActionListener(){
+		public void actionPerformed(ActionEvent event){
+			gestao.adicionaCliente(new Cliente(txtNome.getText(), txtEnd.getText(), txtTel.getText()));
+			CardLayout layout = (CardLayout) panelClientCard.getLayout();
+			layout.show(panelClientCard, "panCli");
+			btnCliAnterior.setEnabled(false);
+			btnAdicionarCliente.setEnabled(true);
+			btnRemoverCliente.setEnabled(true);
+			txtNome.setText("");
+			txtEnd.setText("");
+			txtTel.setText("");
+		}
+	};
+	private JTable tableClientes;
+	
 	private void updateWorkstation(){
 		jogDispLbl.setText(Integer.toString(gestao.getEstJog().getJogosDisponiveis()));
 		mesDispLbl.setText(Integer.toString(gestao.getEstMes().getMesasDisponiveis()));
@@ -832,5 +1095,8 @@ public class GestaoFrame extends JFrame {
 		totCadLbl.setText(Integer.toString(gestao.getEstCad().getTotalCadeiras()));
 		totMesLbl.setText(Integer.toString(gestao.getEstMes().getTotalMesas()));
 		totJogLbl.setText(Integer.toString(gestao.getEstJog().getTotalJogos()));
+		totCliLbl.setText(Integer.toString(gestao.getQtdClientes()));
+		txtrInformaesAqui.setText("Informa\u00E7\u00F5es aqui...");
+		txtrInformaesAqui.setForeground(Color.BLUE);
 	}
 }

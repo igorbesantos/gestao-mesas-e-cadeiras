@@ -39,7 +39,7 @@ public class EstoqueMesas implements Serializable{
 	}
 	
 	public void removeMesas(int mesasRemovidas) throws IllegalArgumentException {
-		if (mesasRemovidas>0){
+		if ((mesasRemovidas>0)&&(mesasRemovidas<=totalMesas)){
 			totalMesas -= mesasRemovidas;
 		}else{
 			throw new IllegalArgumentException("Foi passado um valor menor ou igual a zero");
