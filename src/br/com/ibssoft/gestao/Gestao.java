@@ -1,8 +1,7 @@
 package br.com.ibssoft.gestao;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -21,7 +20,7 @@ public class Gestao implements Serializable{
 	private EstoqueCadeiras estCad;
 	private EstoqueJogos estJog;
 	private File file = new File("status.ser");
-	private HashSet<Cliente> listaClientes;
+	private ArrayList<Cliente> listaClientes;
 	
 	
 	public boolean startOp(){ //start operation
@@ -29,7 +28,7 @@ public class Gestao implements Serializable{
 			estMes = new EstoqueMesas(0,0);
 			estCad = new EstoqueCadeiras(0,0);
 			estJog = new EstoqueJogos(estMes, estCad);
-			listaClientes  = new HashSet<Cliente>();
+			listaClientes  = new ArrayList<Cliente>();
 			return false;
 		}else {
 			return true;
@@ -45,7 +44,7 @@ public class Gestao implements Serializable{
 		try{
 			ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
 				estJog = (EstoqueJogos) inputStream.readObject();
-				listaClientes = (HashSet<Cliente>) inputStream.readObject();
+				listaClientes = (ArrayList<Cliente>) inputStream.readObject();
 				inputStream.close();
 				estMes = estJog.getEstoqueMesas();
 				estCad = estJog.getEstoqueCadeiras();
@@ -92,7 +91,7 @@ public class Gestao implements Serializable{
 		return listaClientes.size();
 	}
 	
-	public HashSet<Cliente> getListaClientes(){
-		return (HashSet<Cliente>) Collections.unmodifiableSet(listaClientes);
+	public ArrayList<Cliente> getListaClientes(){
+		return (ArrayList<Cliente>) listaClientes;
 	}
 }

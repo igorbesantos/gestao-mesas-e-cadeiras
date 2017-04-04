@@ -4,6 +4,8 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+
 import java.awt.GridLayout;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -18,6 +20,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenu;
 import java.awt.CardLayout;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.Enumeration;
 import java.awt.event.ActionEvent;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
@@ -32,8 +36,12 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JMenuItem;
 import br.com.ibssoft.gestao.cliente.Cliente;
 import javax.swing.border.SoftBevelBorder;
+import javax.swing.event.TableColumnModelListener;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.JTableHeader;
+import javax.swing.table.TableColumn;
+import javax.swing.table.TableColumnModel;
 import javax.swing.ListSelectionModel;
 
 public class GestaoFrame extends JFrame {
@@ -54,6 +62,7 @@ public class GestaoFrame extends JFrame {
 	private JPanel clientePanel;
 	private JPanel panelEstOp;
 	private JPanel panelClientCard;
+	private JPanel panelListaCliente;
 	private JLabel subTitulo;
 	private JLabel totJogLbl = new JLabel("0");
 	private JLabel totCadLbl = new JLabel("0");
@@ -88,6 +97,7 @@ public class GestaoFrame extends JFrame {
 	private JMenuItem mntmSalvar;
 	private JTextArea txtrInformaesAqui = new JTextArea();
 	private JTextArea txtEnd;
+	private JTable tableClientes;
 	
 	
 
@@ -377,11 +387,11 @@ public class GestaoFrame extends JFrame {
 		panelClientCard.add(panCli, "panCli");
 		panCli.setLayout(new BorderLayout(0, 0));
 		
-		JPanel panelListaCliente = new JPanel();
+		panelListaCliente = new JPanel();
 		panCli.add(panelListaCliente, BorderLayout.CENTER);
 		panelListaCliente.setLayout(new BorderLayout(0, 0));
-		//TODO Cliente Table
-		
+
+		updateTableClientes();
 		
 		
 		JPanel panelAddRemMenu = new JPanel();
@@ -899,6 +909,7 @@ public class GestaoFrame extends JFrame {
 			btnCliAnterior.setEnabled(false);
 			btnAdicionarCliente.setEnabled(true);
 			btnRemoverCliente.setEnabled(true);
+			updateTableClientes();
 		}
 	};
 	
@@ -1054,12 +1065,11 @@ public class GestaoFrame extends JFrame {
 	};
 	
 	ActionListener btnRemoverClienteListener = new ActionListener(){
+		//TODO Remover Cliente
 		public void actionPerformed(ActionEvent event){
-			CardLayout layout = (CardLayout) panelClientCard.getLayout();
-			layout.show(panelClientCard, "panRemCli");
-			btnCliAnterior.setEnabled(true);
-			btnAdicionarCliente.setEnabled(true);
-			btnRemoverCliente.setEnabled(false);
+			int n = tableClientes.getSelectedRow();
+			gestao.getListaClientes().remove(n);
+			updateTableClientes();
 		}
 	};
 	
@@ -1084,9 +1094,10 @@ public class GestaoFrame extends JFrame {
 			txtNome.setText("");
 			txtEnd.setText("");
 			txtTel.setText("");
+			updateTableClientes();
 		}
 	};
-	private JTable tableClientes;
+
 	
 	private void updateWorkstation(){
 		jogDispLbl.setText(Integer.toString(gestao.getEstJog().getJogosDisponiveis()));
@@ -1098,5 +1109,22 @@ public class GestaoFrame extends JFrame {
 		totCliLbl.setText(Integer.toString(gestao.getQtdClientes()));
 		txtrInformaesAqui.setText("Informa\u00E7\u00F5es aqui...");
 		txtrInformaesAqui.setForeground(Color.BLUE);
+	}
+	
+	private void updateTableClientes(){
+		Cliente cliente;
+		String[] colunas = {"Nome","Endereço","Telefone"};
+		String[][] dados = new String[gestao.getQtdClientes()][3];
+		for (int i=0; i<gestao.getQtdClientes(); i++) {
+			cliente = gestao.getListaClientes().get(i);
+			dados[i][0] = cliente.getNome();
+			dados[i][1] = cliente.getEnd();
+			dados[i][2] = cliente.getTel();
+		}
+		tableClientes = new JTable(dados, colunas);
+		JScrollPane tabCliScroll = new JScrollPane(tableClientes);
+		panelListaCliente.removeAll();
+		panelListaCliente.add(tabCliScroll, BorderLayout.CENTER);
+		panelListaCliente.add(tableClientes.getTableHeader(), BorderLayout.NORTH);
 	}
 }
