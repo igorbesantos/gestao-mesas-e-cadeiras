@@ -1,48 +1,44 @@
 package br.com.ibssoft.gestao;
 
 import java.awt.BorderLayout;
+import java.awt.CardLayout;
+import java.awt.Color;
 import java.awt.EventQueue;
+import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.SQLException;
+
+import javax.swing.DefaultComboBoxModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-
-import java.awt.GridLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import java.awt.Font;
-import javax.swing.SwingConstants;
-import java.awt.Color;
-import javax.swing.border.BevelBorder;
-import java.awt.GridBagLayout;
-import java.awt.GridBagConstraints;
-import java.awt.Insets;
-import javax.swing.JMenuBar;
-import javax.swing.JMenu;
-import java.awt.CardLayout;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.Enumeration;
-import java.awt.event.ActionEvent;
 import javax.swing.JSeparator;
-import javax.swing.JTextField;
 import javax.swing.JSpinner;
-import javax.swing.JCheckBox;
-import javax.swing.JTextArea;
-import javax.swing.SpinnerNumberModel;
-import javax.swing.border.EtchedBorder;
-import javax.swing.border.CompoundBorder;
-import javax.swing.JComboBox;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JMenuItem;
-import br.com.ibssoft.gestao.cliente.Cliente;
-import javax.swing.border.SoftBevelBorder;
-import javax.swing.event.TableColumnModelListener;
 import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.JTableHeader;
-import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
-import javax.swing.ListSelectionModel;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.CompoundBorder;
+import javax.swing.border.EtchedBorder;
+import javax.swing.border.SoftBevelBorder;
+
+import br.com.ibssoft.database.ClientesDAO;
+import br.com.ibssoft.database.ConnectionPool;
+import br.com.ibssoft.gestao.cliente.Cliente;
 
 public class GestaoFrame extends JFrame {
 
@@ -72,6 +68,8 @@ public class GestaoFrame extends JFrame {
 	private JLabel jogDispLbl = new JLabel("0");
 	private JLabel totCliLbl = new JLabel("0");
 	private Gestao gestao = new Gestao();
+	private ConnectionPool connectionPool;
+	private ClientesDAO clientesDAO;
 	private JButton btnEstInicio;
 	private JButton btnEstAnterior;
 	private JButton btnEstSalvar;
@@ -105,12 +103,12 @@ public class GestaoFrame extends JFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
+		Gestao gestao = new Gestao();
+		gestao.startOp();
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Gestao g = new Gestao();
-					g.startOp();
-					GestaoFrame frame = new GestaoFrame(g);
+					GestaoFrame frame = new GestaoFrame(gestao);
 					//frame.setExtendedState(JFrame.MAXIMIZED_BOTH);  // Maximiza ao iniciar
 					frame.setVisible(true);
 				} catch (Exception e) {
@@ -118,14 +116,17 @@ public class GestaoFrame extends JFrame {
 				}
 			}
 		});
+		gestao.stopOp();
 	}
 
 	/**
 	 * Create the frame.
 	 */
-	public GestaoFrame(Gestao gest) {
-		gestao = gest;
-		gest=null;
+	public GestaoFrame(Gestao g) throws SQLException {
+		gestao = g;
+		g=null;
+		connectionPool = new ConnectionPool();
+		clientesDAO = new ClientesDAO(connectionPool.getConnection());
 		
 		setTitle("Gest\u00E3o Mesas e Cadeiras");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -909,7 +910,11 @@ public class GestaoFrame extends JFrame {
 			btnCliAnterior.setEnabled(false);
 			btnAdicionarCliente.setEnabled(true);
 			btnRemoverCliente.setEnabled(true);
-			updateTableClientes();
+			try {
+				updateTableClientes();
+			}catch (SQLException e){
+				e.printStackTrace();
+			}
 		}
 	};
 	
@@ -933,7 +938,11 @@ public class GestaoFrame extends JFrame {
 	
 	ActionListener homPanListener = new ActionListener(){
 		public void actionPerformed(ActionEvent event){
-			updateWorkstation();
+			try {
+				updateWorkstation();
+			}catch (SQLException e){
+				e.printStackTrace();
+			}
 			gestaoEstoqueBtn.setEnabled(true);
 			gestaoClienteBtn.setEnabled(true);
 			subTitulo.setText("Informa\u00E7\u00F5es de Estoque");
@@ -985,7 +994,11 @@ public class GestaoFrame extends JFrame {
 						break;
 				}
 			}
-			updateWorkstation();
+			try {
+				updateWorkstation();
+			}catch (SQLException e){
+				e.printStackTrace();
+			}
 			gestaoEstoqueBtn.setEnabled(true);
 			gestaoClienteBtn.setEnabled(true);
 			subTitulo.setText("Informa\u00E7\u00F5es de Estoque");
@@ -1065,11 +1078,15 @@ public class GestaoFrame extends JFrame {
 	};
 	
 	ActionListener btnRemoverClienteListener = new ActionListener(){
-		//TODO Remover Cliente
+		//TODO Remover Cliente Usando pop-up
 		public void actionPerformed(ActionEvent event){
 			int n = tableClientes.getSelectedRow();
-			gestao.getListaClientes().remove(n);
-			updateTableClientes();
+			try{
+				clientesDAO.getListaClientes().remove(n);
+				updateTableClientes();
+			}catch(SQLException e){
+				e.printStackTrace();
+			}
 		}
 	};
 	
@@ -1085,7 +1102,11 @@ public class GestaoFrame extends JFrame {
 	
 	ActionListener btnCadastrarClienteListener = new ActionListener(){
 		public void actionPerformed(ActionEvent event){
-			gestao.adicionaCliente(new Cliente(txtNome.getText(), txtEnd.getText(), txtTel.getText()));
+			try{
+				clientesDAO.adicionaCliente(new Cliente(txtNome.getText(), txtEnd.getText(), txtTel.getText()));
+			}catch(SQLException e){
+				e.printStackTrace();
+			}
 			CardLayout layout = (CardLayout) panelClientCard.getLayout();
 			layout.show(panelClientCard, "panCli");
 			btnCliAnterior.setEnabled(false);
@@ -1094,29 +1115,33 @@ public class GestaoFrame extends JFrame {
 			txtNome.setText("");
 			txtEnd.setText("");
 			txtTel.setText("");
-			updateTableClientes();
+			try{
+				updateTableClientes();
+			}catch(SQLException e){
+				e.printStackTrace();
+			}
 		}
 	};
 
 	
-	private void updateWorkstation(){
+	private void updateWorkstation() throws SQLException{
 		jogDispLbl.setText(Integer.toString(gestao.getEstJog().getJogosDisponiveis()));
 		mesDispLbl.setText(Integer.toString(gestao.getEstMes().getMesasDisponiveis()));
 		cadDispLbl.setText(Integer.toString(gestao.getEstCad().getCadeirasDisponiveis()));
 		totCadLbl.setText(Integer.toString(gestao.getEstCad().getTotalCadeiras()));
 		totMesLbl.setText(Integer.toString(gestao.getEstMes().getTotalMesas()));
 		totJogLbl.setText(Integer.toString(gestao.getEstJog().getTotalJogos()));
-		totCliLbl.setText(Integer.toString(gestao.getQtdClientes()));
+		totCliLbl.setText(Integer.toString(clientesDAO.getQtdClientes()));
 		txtrInformaesAqui.setText("Informa\u00E7\u00F5es aqui...");
 		txtrInformaesAqui.setForeground(Color.BLUE);
 	}
 	
-	private void updateTableClientes(){
+	private void updateTableClientes() throws SQLException{
 		Cliente cliente;
 		String[] colunas = {"Nome","Endereço","Telefone"};
-		String[][] dados = new String[gestao.getQtdClientes()][3];
-		for (int i=0; i<gestao.getQtdClientes(); i++) {
-			cliente = gestao.getListaClientes().get(i);
+		String[][] dados = new String[clientesDAO.getQtdClientes()][3];
+		for (int i=0; i<clientesDAO.getQtdClientes(); i++) {
+			cliente = clientesDAO.getListaClientes().get(i);
 			dados[i][0] = cliente.getNome();
 			dados[i][1] = cliente.getEnd();
 			dados[i][2] = cliente.getTel();

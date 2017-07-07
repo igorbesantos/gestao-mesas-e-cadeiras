@@ -20,7 +20,6 @@ public class Gestao implements Serializable{
 	private EstoqueCadeiras estCad;
 	private EstoqueJogos estJog;
 	private File file = new File("status.ser");
-	private ArrayList<Cliente> listaClientes;
 	
 	
 	public boolean startOp(){ //start operation
@@ -28,7 +27,6 @@ public class Gestao implements Serializable{
 			estMes = new EstoqueMesas(0,0);
 			estCad = new EstoqueCadeiras(0,0);
 			estJog = new EstoqueJogos(estMes, estCad);
-			listaClientes  = new ArrayList<Cliente>();
 			return false;
 		}else {
 			return true;
@@ -44,7 +42,6 @@ public class Gestao implements Serializable{
 		try{
 			ObjectInputStream inputStream = new ObjectInputStream(new FileInputStream(file));
 				estJog = (EstoqueJogos) inputStream.readObject();
-				listaClientes = (ArrayList<Cliente>) inputStream.readObject();
 				inputStream.close();
 				estMes = estJog.getEstoqueMesas();
 				estCad = estJog.getEstoqueCadeiras();
@@ -59,7 +56,6 @@ public class Gestao implements Serializable{
 		try{
 			ObjectOutputStream outputStream = new ObjectOutputStream(new FileOutputStream(file));
 				outputStream.writeObject(estJog);
-				outputStream.writeObject(listaClientes);
 			outputStream.close();
 		}catch(IOException ex){
 			ex.printStackTrace();
@@ -77,21 +73,5 @@ public class Gestao implements Serializable{
 	}
 	public EstoqueMesas getEstMes() {
 		return estMes;
-	}
-
-	public boolean adicionaCliente(Cliente c){
-		return listaClientes.add(c);
-	}
-	
-	public boolean removeCliente(Cliente c){
-		return listaClientes.remove(c);
-	}
-	
-	public int getQtdClientes(){
-		return listaClientes.size();
-	}
-	
-	public ArrayList<Cliente> getListaClientes(){
-		return (ArrayList<Cliente>) listaClientes;
 	}
 }
