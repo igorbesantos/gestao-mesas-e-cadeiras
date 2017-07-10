@@ -1,5 +1,5 @@
 package br.com.ibssoft.gestao;
-
+//TODO N+1 Database problem
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
@@ -11,7 +11,9 @@ import java.awt.GridLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.time.LocalDate;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -19,13 +21,11 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSeparator;
 import javax.swing.JSpinner;
+import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
@@ -35,9 +35,9 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.SoftBevelBorder;
-
 import br.com.ibssoft.database.ClientesDAO;
 import br.com.ibssoft.database.ConnectionPool;
+import br.com.ibssoft.gestao.aluguel.DiaAluguel;
 import br.com.ibssoft.gestao.cliente.Cliente;
 
 public class GestaoFrame extends JFrame {
@@ -67,9 +67,9 @@ public class GestaoFrame extends JFrame {
 	private JLabel cadDispLbl = new JLabel("0");
 	private JLabel jogDispLbl = new JLabel("0");
 	private JLabel totCliLbl = new JLabel("0");
-	private Gestao gestao = new Gestao();
 	private ConnectionPool connectionPool;
 	private ClientesDAO clientesDAO;
+	private DiaAluguel diaAluguel;
 	private JButton btnEstInicio;
 	private JButton btnEstAnterior;
 	private JButton btnEstSalvar;
@@ -81,8 +81,8 @@ public class GestaoFrame extends JFrame {
 	private JButton btnRemoverCliente;
 	private JButton btnCliAnterior;
 	private JButton btnCadastrarCliente;
-	private JComboBox estSProdutoPicker;
-	private JComboBox estEProdutoPicker; 
+	private JComboBox<String> estSProdutoPicker;
+	private JComboBox<String> estEProdutoPicker; 
 	private JSpinner estSQtdPicker;
 	private JSpinner estSValorPicker;
 	private JSpinner estEQtdPicker;
@@ -92,10 +92,10 @@ public class GestaoFrame extends JFrame {
 	private JCheckBox checkBoxEOutro;
 	private JCheckBox checkBoxSOutro;
 	private JCheckBox checkBoxCompra;
-	private JMenuItem mntmSalvar;
 	private JTextArea txtrInformaesAqui = new JTextArea();
 	private JTextArea txtEnd;
 	private JTable tableClientes;
+	private JLabel nomeClienteRemovido;
 	
 	
 
@@ -103,12 +103,11 @@ public class GestaoFrame extends JFrame {
 	 * Launch the application.
 	 */
 	public static void main(String[] args) {
-		Gestao gestao = new Gestao();
-		gestao.startOp();
+		LocalDate dia = (LocalDate.now());
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					GestaoFrame frame = new GestaoFrame(gestao);
+					GestaoFrame frame = new GestaoFrame(dia);
 					//frame.setExtendedState(JFrame.MAXIMIZED_BOTH);  // Maximiza ao iniciar
 					frame.setVisible(true);
 				} catch (Exception e) {
@@ -116,15 +115,14 @@ public class GestaoFrame extends JFrame {
 				}
 			}
 		});
-		gestao.stopOp();
 	}
 
 	/**
 	 * Create the frame.
 	 */
-	public GestaoFrame(Gestao g) throws SQLException {
-		gestao = g;
-		g=null;
+	public GestaoFrame(LocalDate dia) throws SQLException {
+		diaAluguel = DiaAluguel.of(dia);
+		dia=null;
 		connectionPool = new ConnectionPool();
 		clientesDAO = new ClientesDAO(connectionPool.getConnection());
 		
@@ -132,15 +130,6 @@ public class GestaoFrame extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setBounds(100, 100, 600, 500);
 		
-		JMenuBar menuBar = new JMenuBar();
-		setJMenuBar(menuBar);
-		
-		JMenu mnArquivo = new JMenu("Arquivo");
-		menuBar.add(mnArquivo);
-		
-		mntmSalvar = new JMenuItem("Salvar");
-		mntmSalvar.addActionListener(mntmSalvarListener);
-		mnArquivo.add(mntmSalvar);
 		contentPane = new JPanel();
 		contentPane.setBorder(new BevelBorder(BevelBorder.RAISED, null, null, null, null));
 		setContentPane(contentPane);
@@ -186,9 +175,17 @@ public class GestaoFrame extends JFrame {
 		subTitulo.setForeground(Color.BLUE);
 		subTitulo.setFont(new Font("Microsoft YaHei Light", Font.BOLD, 25));
 		
+
+		
 		panelWorkstation = new JPanel();
 		panelWorkstation.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
-		panelMain.add(panelWorkstation, BorderLayout.CENTER);
+		
+		JPanel panelWorkstationComAviso = new JPanel();
+		panelWorkstationComAviso.setLayout(new BorderLayout(0,0));
+		panelWorkstationComAviso.setBorder(new EtchedBorder(EtchedBorder.LOWERED, null, null));
+		panelWorkstationComAviso.add(panelWorkstation, BorderLayout.CENTER);
+		
+		panelMain.add(panelWorkstationComAviso, BorderLayout.CENTER);
 		panelWorkstation.setLayout(layoutController);
 		
 		updateWorkstation(); //Atualiza os valores dos JLabels
@@ -529,10 +526,33 @@ public class GestaoFrame extends JFrame {
 		
 		JPanel panelRemCliente = new JPanel();
 		panelClientCard.add(panelRemCliente, "panRemCli");
+		panelRemCliente.setLayout(new BorderLayout(0, 0));
 		
-		JLabel lblpainlDeRemover = new JLabel("-PAIN\u00C9L DE REMOVER CLIENTE-");
-		lblpainlDeRemover.setFont(new Font("Dialog", Font.ITALIC, 25));
-		panelRemCliente.add(lblpainlDeRemover);
+		JLabel lblDesejaRemoverO = new JLabel("Deseja Remover o Cliente citado abaixo?");
+		lblDesejaRemoverO.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 16));
+		lblDesejaRemoverO.setHorizontalAlignment(SwingConstants.CENTER);
+		panelRemCliente.add(lblDesejaRemoverO, BorderLayout.NORTH);
+		
+		JPanel panel = new JPanel();
+		panelRemCliente.add(panel, BorderLayout.WEST);
+		
+		JSplitPane splitPane = new JSplitPane();
+		splitPane.setOrientation(JSplitPane.VERTICAL_SPLIT);
+		panelRemCliente.add(splitPane, BorderLayout.SOUTH);
+		
+		JButton btnRemoverSim = new JButton("Sim");
+		btnRemoverSim.addActionListener(btnRemoverSimListener );
+		btnRemoverSim.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 14));
+		splitPane.setLeftComponent(btnRemoverSim);
+		
+		JButton btnRemoverNo = new JButton("N\u00E3o");
+		btnRemoverNo.addActionListener(btnCliAnteriorListener);
+		btnRemoverNo.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 14));
+		splitPane.setRightComponent(btnRemoverNo);
+		
+		nomeClienteRemovido = new JLabel("");
+		nomeClienteRemovido.setHorizontalAlignment(SwingConstants.CENTER);
+		panelRemCliente.add(nomeClienteRemovido, BorderLayout.CENTER);
 		
 		estoquePanel = new JPanel();
 		panelWorkstation.add(estoquePanel, "estoquePanel");
@@ -618,10 +638,10 @@ public class GestaoFrame extends JFrame {
 		lblProduto.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
 		panelSaidPrd.add(lblProduto);
 		
-		estSProdutoPicker = new JComboBox();
+		estSProdutoPicker = new JComboBox<String>();
 		estSProdutoPicker.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 13));
 		estSProdutoPicker.setToolTipText("Escolha uma unidade");
-		estSProdutoPicker.setModel(new DefaultComboBoxModel(new String[] {"Mesas", "Cadeiras", "Jogos"}));
+		estSProdutoPicker.setModel(new DefaultComboBoxModel<String>(new String[] {"Mesas", "Cadeiras", "Jogos"}));
 		estSProdutoPicker.setMaximumRowCount(3);
 		panelSaidPrd.add(estSProdutoPicker);
 		
@@ -650,7 +670,7 @@ public class GestaoFrame extends JFrame {
 		panelSaidQtd.add(label_5);
 		
 		estSQtdPicker = new JSpinner();
-		estSQtdPicker.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
+		estSQtdPicker.setModel(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
 		estSQtdPicker.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 13));
 		panelSaidQtd.add(estSQtdPicker);
 		
@@ -688,6 +708,21 @@ public class GestaoFrame extends JFrame {
 		panelSaidMot.add(label_7, gbc_label_7);
 		
 		checkBoxVenda = new JCheckBox("Venda");
+		checkBoxVenda.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(checkBoxVenda.isSelected()){
+					checkBoxQuebra.setEnabled(false);
+					checkBoxSOutro.setEnabled(false);
+					estSOutroPicker.setEnabled(false);
+					estSValorPicker.setEnabled(true);
+				}else{
+					checkBoxQuebra.setEnabled(true);
+					checkBoxSOutro.setEnabled(true);
+					estSValorPicker.setEnabled(false);
+				}
+			}
+		});
+		
 		checkBoxVenda.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 13));
 		GridBagConstraints gbc_checkBoxVenda = new GridBagConstraints();
 		gbc_checkBoxVenda.gridwidth = 2;
@@ -708,6 +743,7 @@ public class GestaoFrame extends JFrame {
 		estSValorPicker = new JSpinner();
 		estSValorPicker.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 13));
 		estSValorPicker.setModel(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
+		estSValorPicker.setEnabled(false);
 		GridBagConstraints gbc_estSValorPicker = new GridBagConstraints();
 		gbc_estSValorPicker.fill = GridBagConstraints.HORIZONTAL;
 		gbc_estSValorPicker.insets = new Insets(0, 0, 5, 0);
@@ -716,6 +752,19 @@ public class GestaoFrame extends JFrame {
 		panelSaidMot.add(estSValorPicker, gbc_estSValorPicker);
 		
 		checkBoxQuebra = new JCheckBox("Quebra");
+		checkBoxQuebra.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (checkBoxQuebra.isSelected()){
+					checkBoxVenda.setEnabled(false);
+					checkBoxSOutro.setEnabled(false);
+					estSValorPicker.setEnabled(false);
+					estSOutroPicker.setEnabled(false);
+				}else{
+					checkBoxVenda.setEnabled(true);
+					checkBoxSOutro.setEnabled(true);
+				} 
+			}
+		});
 		checkBoxQuebra.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 13));
 		GridBagConstraints gbc_checkBoxQuebra = new GridBagConstraints();
 		gbc_checkBoxQuebra.gridwidth = 2;
@@ -725,7 +774,20 @@ public class GestaoFrame extends JFrame {
 		panelSaidMot.add(checkBoxQuebra, gbc_checkBoxQuebra);
 		
 		checkBoxSOutro = new JCheckBox("Outros:");
-		checkBoxSOutro.addActionListener(checkBoxSOutroListener);
+		checkBoxSOutro.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(checkBoxSOutro.isSelected()){
+					checkBoxQuebra.setEnabled(false);
+					checkBoxVenda.setEnabled(false);
+					estSValorPicker.setEnabled(false);
+					estSOutroPicker.setEnabled(true);
+				}else{
+					checkBoxQuebra.setEnabled(true);
+					checkBoxVenda.setEnabled(true);
+					estSOutroPicker.setEnabled(false);
+				}
+			}
+		});
 		checkBoxSOutro.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 13));
 		GridBagConstraints gbc_checkBoxSOutro = new GridBagConstraints();
 		gbc_checkBoxSOutro.gridwidth = 2;
@@ -737,6 +799,7 @@ public class GestaoFrame extends JFrame {
 		estSOutroPicker = new JTextField();
 		estSOutroPicker.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 13));
 		estSOutroPicker.setColumns(10);
+		estSOutroPicker.setEnabled(false);
 		GridBagConstraints gbc_estSOutroPicker = new GridBagConstraints();
 		gbc_estSOutroPicker.fill = GridBagConstraints.HORIZONTAL;
 		gbc_estSOutroPicker.gridwidth = 2;
@@ -769,9 +832,9 @@ public class GestaoFrame extends JFrame {
 		lblProduto_1.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
 		panelEntPrd.add(lblProduto_1);
 		
-		estEProdutoPicker = new JComboBox();
+		estEProdutoPicker = new JComboBox<String>();
 		estEProdutoPicker.setMaximumRowCount(3);
-		estEProdutoPicker.setModel(new DefaultComboBoxModel(new String[] {"Mesas", "Cadeiras", "Jogos"}));
+		estEProdutoPicker.setModel(new DefaultComboBoxModel<String>(new String[] {"Mesas", "Cadeiras", "Jogos"}));
 		estEProdutoPicker.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
 		panelEntPrd.add(estEProdutoPicker);
 		
@@ -800,7 +863,7 @@ public class GestaoFrame extends JFrame {
 		panelEntQtd.add(label);
 		
 		estEQtdPicker = new JSpinner();
-		estEQtdPicker.setModel(new SpinnerNumberModel(new Integer(1), new Integer(1), null, new Integer(1)));
+		estEQtdPicker.setModel(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
 		estEQtdPicker.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
 		panelEntQtd.add(estEQtdPicker);
 		
@@ -839,6 +902,18 @@ public class GestaoFrame extends JFrame {
 		panelEntMot.add(label_2, gbc_label_2);
 		
 		checkBoxCompra = new JCheckBox("Compra");
+		checkBoxCompra.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(checkBoxCompra.isSelected()){
+					estEValorPicker.setEnabled(true);
+					checkBoxEOutro.setEnabled(false);
+					estEOutroPicker.setEnabled(false);
+				}else{
+					estEValorPicker.setEnabled(false);
+					checkBoxEOutro.setEnabled(true);
+				}
+			}
+		});
 		checkBoxCompra.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
 		GridBagConstraints gbc_checkBoxCompra = new GridBagConstraints();
 		gbc_checkBoxCompra.gridwidth = 2;
@@ -859,6 +934,7 @@ public class GestaoFrame extends JFrame {
 		estEValorPicker = new JSpinner();
 		estEValorPicker.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
 		estEValorPicker.setModel(new SpinnerNumberModel(new Integer(0), new Integer(0), null, new Integer(1)));
+		estEValorPicker.setEnabled(false);
 		GridBagConstraints gbc_estEValorPicker = new GridBagConstraints();
 		gbc_estEValorPicker.fill = GridBagConstraints.HORIZONTAL;
 		gbc_estEValorPicker.insets = new Insets(0, 0, 5, 0);
@@ -867,7 +943,18 @@ public class GestaoFrame extends JFrame {
 		panelEntMot.add(estEValorPicker, gbc_estEValorPicker);
 		
 		checkBoxEOutro = new JCheckBox("Outros:");
-		checkBoxEOutro.addActionListener(checkBoxEOutroListener);
+		checkBoxEOutro.addActionListener(new ActionListener(){
+			public void actionPerformed(ActionEvent e){
+				if(checkBoxEOutro.isSelected()){
+					estEOutroPicker.setEnabled(true);
+					checkBoxCompra.setEnabled(false);
+					estEValorPicker.setEnabled(false);
+				}else{
+					estEOutroPicker.setEnabled(false);
+					checkBoxCompra.setEnabled(true);
+				}
+			}
+		});
 		checkBoxEOutro.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
 		GridBagConstraints gbc_checkBoxEOutro = new GridBagConstraints();
 		gbc_checkBoxEOutro.gridwidth = 2;
@@ -879,6 +966,7 @@ public class GestaoFrame extends JFrame {
 		estEOutroPicker = new JTextField();
 		estEOutroPicker.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 15));
 		estEOutroPicker.setColumns(10);
+		estEOutroPicker.setEnabled(false);
 		GridBagConstraints gbc_estEOutroPicker = new GridBagConstraints();
 		gbc_estEOutroPicker.gridwidth = 2;
 		gbc_estEOutroPicker.fill = GridBagConstraints.HORIZONTAL;
@@ -888,11 +976,12 @@ public class GestaoFrame extends JFrame {
 		
 		JPanel panelInfo = new JPanel();
 		panelInfo.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
-		estoquePanel.add(panelInfo, BorderLayout.SOUTH);
+		panelWorkstationComAviso.add(panelInfo, BorderLayout.SOUTH);
 		panelInfo.setLayout(new BorderLayout(0, 0));
 		
 		JLabel lblInformaesELembretes = new JLabel("    Informa\u00E7\u00F5es e Lembretes: ");
 		panelInfo.add(lblInformaesELembretes, BorderLayout.NORTH);
+		txtrInformaesAqui.setEditable(false);
 		
 		txtrInformaesAqui.setForeground(Color.BLUE);
 		txtrInformaesAqui.setFont(new Font("Monospaced", Font.PLAIN, 12));
@@ -952,63 +1041,61 @@ public class GestaoFrame extends JFrame {
 	
 	ActionListener estExecListener = new ActionListener(){
 		public void actionPerformed(ActionEvent event){
-			if(isEntrada){
-				switch((String) estEProdutoPicker.getSelectedItem()){
-					case "Mesas":
-						gestao.getEstMes().adicionaMesas((Integer) estEQtdPicker.getValue());
-						break;
-					case "Cadeiras":
-						gestao.getEstCad().adicionaCadeiras((Integer) estEQtdPicker.getValue()); 
-						break;
-					case "Jogos":
-						gestao.getEstMes().adicionaMesas((Integer) estEQtdPicker.getValue());
-						gestao.getEstCad().adicionaCadeiras(((Integer) estEQtdPicker.getValue())*4);
-						break;
-				}
-			}else{
-				switch((String) estSProdutoPicker.getSelectedItem()){
-					case "Mesas":
-						try {
-							gestao.getEstMes().removeMesas((Integer) estSQtdPicker.getValue());
-						} catch (IllegalArgumentException e2) {
-							txtrInformaesAqui.setText("Valor Inválido");
-							txtrInformaesAqui.setForeground(Color.RED);
+		String aviso="";
+			try(Connection con = new ConnectionPool().getConnection()){
+				if(isEntrada){
+					if((Integer)estEQtdPicker.getValue()>0){
+						switch((String) estEProdutoPicker.getSelectedItem()){
+							case "Mesas":
+								diaAluguel.adicionaMesas((Integer) estEQtdPicker.getValue(), con);
+								aviso ="Estoque atualizado com mais "+(Integer) estEQtdPicker.getValue()+" mesas!";
+								break;
+							case "Cadeiras":
+								diaAluguel.adicionaCadeiras((Integer) estEQtdPicker.getValue(), con);
+								aviso ="Estoque atualizado com mais "+(Integer) estEQtdPicker.getValue()+" mesas!";
+								break;
+							case "Jogos":
+								diaAluguel.adicionaMesas((Integer) estEQtdPicker.getValue(),con);
+								diaAluguel.adicionaCadeiras(((Integer) estEQtdPicker.getValue())*4, con);
+								aviso ="Estoque atualizado com mais "+(Integer) estEQtdPicker.getValue()+" jogos!";
+								break;
 						}
-						break;
-					case "Cadeiras":
-						try {
-							gestao.getEstCad().removeCadeiras((Integer) estSQtdPicker.getValue());
-						} catch (IllegalArgumentException e1) {
-							txtrInformaesAqui.setText("Valor Inválido");
-							txtrInformaesAqui.setForeground(Color.RED);
-						} 
-						break;
-					case "Jogos":
-						try {
-							gestao.getEstMes().removeMesas((Integer) estSQtdPicker.getValue());
-							gestao.getEstCad().removeCadeiras(((Integer) estSQtdPicker.getValue())*4);
-						} catch (IllegalArgumentException e) {
-							txtrInformaesAqui.setText("Valor Inválido");
-							txtrInformaesAqui.setForeground(Color.RED);
-						}
-						break;
+					}else{
+						aviso="Quantidade inválida! Estoque não foi atualizado!";
+					}
+				}else if((Integer)estSQtdPicker.getValue()>0){
+					switch((String) estSProdutoPicker.getSelectedItem()){
+						case "Mesas":
+							diaAluguel.removeMesas((Integer) estSQtdPicker.getValue(), con);
+							aviso ="Estoque atualizado com menos "+(Integer) estSQtdPicker.getValue()+" mesas!";
+							break;
+						case "Cadeiras":
+							diaAluguel.removeCadeiras((Integer) estSQtdPicker.getValue(), con);
+							aviso ="Estoque atualizado com menos "+(Integer) estSQtdPicker.getValue()+" cadeiras!";
+							break;
+						case "Jogos":
+							diaAluguel.removeMesas((Integer) estSQtdPicker.getValue(), con);
+							diaAluguel.removeCadeiras(((Integer) estSQtdPicker.getValue())*4, con);
+							aviso ="Estoque atualizado com menos "+(Integer) estSQtdPicker.getValue()+" jogos!";
+							break;
+					}
+				} else {
+					aviso="Quantidade inválida! Estoque não foi atualizado!";
 				}
-			}
-			try {
-				updateWorkstation();
 			}catch (SQLException e){
 				e.printStackTrace();
+				aviso = "Não foi possível salvar devido a um ERRO SQL";
+			}finally{
+				try {
+					updateWorkstation(aviso);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 			}
 			gestaoEstoqueBtn.setEnabled(true);
 			gestaoClienteBtn.setEnabled(true);
 			subTitulo.setText("Informa\u00E7\u00F5es de Estoque");
 			layoutController.show(panelWorkstation, "homePanel");
-			estEOutroPicker.setText("");
-			estEOutroPicker.setEnabled(false);
-			estSOutroPicker.setText("");
-			estSOutroPicker.setEnabled(false);
-			checkBoxSOutro.setSelected(false);
-			checkBoxEOutro.setSelected(false);
 		}
 	};
 	
@@ -1018,12 +1105,6 @@ public class GestaoFrame extends JFrame {
 			btnEstSalvar.setEnabled(false);
 			panelEstOpLayout.first(panelEstOp);
 			subTitulo.setText("Gestão de Estoque");
-			estEOutroPicker.setText("");
-			estEOutroPicker.setEnabled(false);
-			estSOutroPicker.setText("");
-			estSOutroPicker.setEnabled(false);
-			checkBoxSOutro.setSelected(false);
-			checkBoxEOutro.setSelected(false);
 		}
 	};
 	
@@ -1034,7 +1115,7 @@ public class GestaoFrame extends JFrame {
 			btnEstSalvar.setEnabled(true);
 			isEntrada = true;
 			subTitulo.setText("Entrada em Estoque");
-			estEOutroPicker.setEnabled(false);
+			updateEstoqueView();
 		}
 	};
 	
@@ -1045,25 +1126,7 @@ public class GestaoFrame extends JFrame {
 			btnEstSalvar.setEnabled(true);
 			isEntrada = false;
 			subTitulo.setText("Saída em Estoque");
-			estSOutroPicker.setEnabled(false);
-		}
-	};
-	
-	ActionListener checkBoxEOutroListener = new ActionListener(){
-		public void actionPerformed(ActionEvent event){
-			estEOutroPicker.setEnabled(checkBoxEOutro.isSelected());
-		}
-	};
-	
-	ActionListener checkBoxSOutroListener = new ActionListener(){
-		public void actionPerformed(ActionEvent event){
-			estSOutroPicker.setEnabled(checkBoxSOutro.isSelected());
-		}
-	};
-	
-	ActionListener mntmSalvarListener = new ActionListener(){
-		public void actionPerformed(ActionEvent event){
-			gestao.stopOp();
+			updateEstoqueView();
 		}
 	};
 	
@@ -1078,15 +1141,31 @@ public class GestaoFrame extends JFrame {
 	};
 	
 	ActionListener btnRemoverClienteListener = new ActionListener(){
-		//TODO Remover Cliente Usando pop-up
 		public void actionPerformed(ActionEvent event){
-			int n = tableClientes.getSelectedRow();
+			nomeClienteRemovido.setText((String) tableClientes.getValueAt(tableClientes.getSelectedRow(), 1));
+			CardLayout layout = (CardLayout) panelClientCard.getLayout();
+			layout.show(panelClientCard, "panRemCli");
+			btnCliAnterior.setEnabled(true);
+			btnAdicionarCliente.setEnabled(true);
+			btnRemoverCliente.setEnabled(false);
+		}
+	};
+	
+	ActionListener btnRemoverSimListener = new ActionListener() {
+		public void actionPerformed(ActionEvent event){
+			int row = tableClientes.getSelectedRow();
+			int id = Integer.parseInt((String) tableClientes.getValueAt(row, 0));
 			try{
-				clientesDAO.getListaClientes().remove(n);
+				clientesDAO.removeCliente(id);
 				updateTableClientes();
 			}catch(SQLException e){
 				e.printStackTrace();
 			}
+			CardLayout layout = (CardLayout) panelClientCard.getLayout();
+			layout.show(panelClientCard, "panCli");
+			btnCliAnterior.setEnabled(false);
+			btnAdicionarCliente.setEnabled(true);
+			btnRemoverCliente.setEnabled(true);
 		}
 	};
 	
@@ -1125,31 +1204,61 @@ public class GestaoFrame extends JFrame {
 
 	
 	private void updateWorkstation() throws SQLException{
-		jogDispLbl.setText(Integer.toString(gestao.getEstJog().getJogosDisponiveis()));
-		mesDispLbl.setText(Integer.toString(gestao.getEstMes().getMesasDisponiveis()));
-		cadDispLbl.setText(Integer.toString(gestao.getEstCad().getCadeirasDisponiveis()));
-		totCadLbl.setText(Integer.toString(gestao.getEstCad().getTotalCadeiras()));
-		totMesLbl.setText(Integer.toString(gestao.getEstMes().getTotalMesas()));
-		totJogLbl.setText(Integer.toString(gestao.getEstJog().getTotalJogos()));
+		jogDispLbl.setText(Integer.toString(diaAluguel.getEstoqueJogos().getJogosDisponiveis()));
+		mesDispLbl.setText(Integer.toString(diaAluguel.getEstoqueJogos().getEstoqueMesas().getMesasDisponiveis()));
+		cadDispLbl.setText(Integer.toString(diaAluguel.getEstoqueJogos().getEstoqueCadeiras().getCadeirasDisponiveis()));
+		totCadLbl.setText(Integer.toString(diaAluguel.getEstoqueJogos().getEstoqueCadeiras().getTotalCadeiras()));
+		totMesLbl.setText(Integer.toString(diaAluguel.getEstoqueJogos().getEstoqueMesas().getTotalMesas()));
+		totJogLbl.setText(Integer.toString(diaAluguel.getEstoqueJogos().getTotalJogos()));
 		totCliLbl.setText(Integer.toString(clientesDAO.getQtdClientes()));
 		txtrInformaesAqui.setText("Informa\u00E7\u00F5es aqui...");
 		txtrInformaesAqui.setForeground(Color.BLUE);
 	}
 	
+	private void updateWorkstation(String feedback) throws SQLException{
+		updateWorkstation();
+		txtrInformaesAqui.setText(feedback);
+		txtrInformaesAqui.setForeground(Color.RED);
+	}
+	
 	private void updateTableClientes() throws SQLException{
 		Cliente cliente;
-		String[] colunas = {"Nome","Endereço","Telefone"};
-		String[][] dados = new String[clientesDAO.getQtdClientes()][3];
+		String[] colunas = {"Id","Nome","Endereço","Telefone"};
+		String[][] dados = new String[clientesDAO.getQtdClientes()][4];
 		for (int i=0; i<clientesDAO.getQtdClientes(); i++) {
 			cliente = clientesDAO.getListaClientes().get(i);
-			dados[i][0] = cliente.getNome();
-			dados[i][1] = cliente.getEnd();
-			dados[i][2] = cliente.getTel();
+			dados[i][0] = Integer.toString(cliente.getId());
+			dados[i][1] = cliente.getNome();
+			dados[i][2] = cliente.getEnd();
+			dados[i][3] = cliente.getTel();
 		}
 		tableClientes = new JTable(dados, colunas);
 		JScrollPane tabCliScroll = new JScrollPane(tableClientes);
 		panelListaCliente.removeAll();
 		panelListaCliente.add(tabCliScroll, BorderLayout.CENTER);
 		panelListaCliente.add(tableClientes.getTableHeader(), BorderLayout.NORTH);
+	}
+
+	private void updateEstoqueView() {
+		estEOutroPicker.setText("");
+		estSOutroPicker.setText("");
+		estEQtdPicker.setValue(new Integer(0));
+		estSQtdPicker.setValue(new Integer(0));
+		estEValorPicker.setValue(new Integer(0));
+		estSValorPicker.setValue(new Integer(0));
+		checkBoxSOutro.setSelected(false);
+		checkBoxEOutro.setSelected(false);
+		checkBoxQuebra.setSelected(false);
+		checkBoxVenda.setSelected(false);
+		checkBoxCompra.setSelected(false);
+		estEOutroPicker.setEnabled(false);
+		estSOutroPicker.setEnabled(false);
+		estEValorPicker.setEnabled(false);
+		estSValorPicker.setEnabled(false);
+		checkBoxSOutro.setEnabled(true);
+		checkBoxEOutro.setEnabled(true);
+		checkBoxQuebra.setEnabled(true);
+		checkBoxVenda.setEnabled(true);
+		checkBoxCompra.setEnabled(true);
 	}
 }

@@ -17,6 +17,15 @@ public class EstoqueCadeiras implements Serializable{
 		}
 	}
 	
+	public EstoqueCadeiras (int total) throws IllegalArgumentException {
+		if ((total>=0)){
+			this.totalCadeiras = total;
+			this.cadeirasAlugadas = 0;
+		} else{
+			throw new IllegalArgumentException();
+		}
+	}
+	
 	public int getTotalCadeiras() {
 		return totalCadeiras;
 	}

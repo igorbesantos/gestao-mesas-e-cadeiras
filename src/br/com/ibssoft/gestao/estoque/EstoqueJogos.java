@@ -12,14 +12,13 @@ public class EstoqueJogos implements Serializable{
 		this.mesas = mesas;
 		this.cadeiras = cadeiras;
 	}
-	
 	public EstoqueMesas getEstoqueMesas() {
 		return mesas;
 	}
 	public EstoqueCadeiras getEstoqueCadeiras() {
 		return cadeiras;
 	}
-
+	
 	public int getTotalJogos(){
 		int qtdMesas = mesas.getTotalMesas();
 		int qtdCadeiras = cadeiras.getTotalCadeiras();

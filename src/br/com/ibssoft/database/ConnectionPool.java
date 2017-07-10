@@ -12,10 +12,13 @@ public class ConnectionPool {
 	private DataSource dataSource;
 	
 	public ConnectionPool () {
+		String user="gestaomesascadeiras";
+		String userPassword="mesasecadeiras";
+		
 		MysqlConnectionPoolDataSource pool = new MysqlConnectionPoolDataSource();
 		pool.setUrl("jdbc:mysql://localhost/gestao_alugueis");
-		pool.setUser("root");
-		pool.setPassword("njb8yp8f");
+		pool.setUser(user);
+		pool.setPassword(userPassword);
 		dataSource = pool;
 		System.out.println("Conexão aberta!");
 	}

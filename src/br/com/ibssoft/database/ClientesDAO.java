@@ -66,8 +66,7 @@ public class ClientesDAO {
 		return false;
 	}
 	
-	public boolean removeCliente(Cliente cliente) throws SQLException{
-		int id = cliente.getId();
+	public boolean removeCliente(int id) throws SQLException{
 		String sql = "DELETE FROM CLIENTES WHERE IdCli=?";
 		PreparedStatement preparedStatement = con.prepareStatement(sql);
 		preparedStatement.setInt(1, id);

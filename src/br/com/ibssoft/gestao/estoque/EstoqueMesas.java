@@ -17,6 +17,15 @@ public class EstoqueMesas implements Serializable{
 		}
 	}
 	
+	public EstoqueMesas (int total) throws IllegalArgumentException {
+		if ((total>=0)){
+			this.totalMesas = total;
+			this.mesasAlugadas = 0;
+		} else{
+			throw new IllegalArgumentException();
+		}
+	}
+	
 	
 	public int getTotalMesas() {
 		return totalMesas;

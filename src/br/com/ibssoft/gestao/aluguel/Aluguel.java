@@ -3,15 +3,34 @@ package br.com.ibssoft.gestao.aluguel;
 import java.time.LocalDate;
 
 import br.com.ibssoft.gestao.cliente.Cliente;
-import sun.util.calendar.LocalGregorianCalendar.Date;
 
 public class Aluguel {
 	
 	private Cliente cliente;
-	private LocalDate data;
+	private DiaAluguel dia;
+	private Integer qtdMesas;
+	private Integer qtdCadeiras;
 	
-	public static void main(String[] args){
-		LocalDate data = LocalDate.now();
-		System.out.println(data);
+	public Aluguel(Cliente cliente, DiaAluguel dia, Integer qtdMesas, Integer qtdCadeiras) {
+		this.cliente = cliente;
+		this.dia = dia;
+		this.qtdMesas = qtdMesas;
+		this.qtdCadeiras = qtdCadeiras;
 	}
+
+	public Cliente getCliente() {
+		return cliente;
+	}
+
+	public Integer getQtdMesas() {
+		return qtdMesas;
+	}
+
+	public Integer getQtdCadeiras() {
+		return qtdCadeiras;
+	}
+	public LocalDate getData() {
+		return dia.getData();
+	}
+	
 }
