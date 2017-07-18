@@ -13,7 +13,9 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.time.LocalDate;
+import java.util.GregorianCalendar;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -192,17 +194,16 @@ public class GestaoFrame extends JFrame {
 		
 		homePanel = new JPanel();
 		GridBagLayout gbl_homePanel = new GridBagLayout();
-		gbl_homePanel.columnWidths = new int[]{187, 0, 0, 0, 0, 0, 0};
-		gbl_homePanel.rowHeights = new int[]{29, 29, 29, 29, 29, 29, 0, 0, 0};
-		gbl_homePanel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
-		gbl_homePanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_homePanel.columnWidths = new int[]{187, 0, 0, 0, 0, 0, 0, 0};
+		gbl_homePanel.rowHeights = new int[]{29, 29, 29, 29, 29, 29, 0, 0, 0, 0};
+		gbl_homePanel.columnWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, Double.MIN_VALUE};
+		gbl_homePanel.rowWeights = new double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, Double.MIN_VALUE};
 		homePanel.setLayout(gbl_homePanel);
 		
 		JLabel label_3 = new JLabel("Total de Cadeiras:");
 		label_3.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 22));
 		GridBagConstraints gbc_label_3 = new GridBagConstraints();
 		gbc_label_3.gridheight = 2;
-		gbc_label_3.anchor = GridBagConstraints.WEST;
 		gbc_label_3.insets = new Insets(0, 0, 5, 5);
 		gbc_label_3.gridx = 0;
 		gbc_label_3.gridy = 0;
@@ -238,13 +239,20 @@ public class GestaoFrame extends JFrame {
 		
 		GridBagConstraints gbc_cadDispLbl = new GridBagConstraints();
 		gbc_cadDispLbl.gridheight = 2;
-		gbc_cadDispLbl.insets = new Insets(0, 0, 5, 0);
+		gbc_cadDispLbl.insets = new Insets(0, 0, 5, 5);
 		gbc_cadDispLbl.gridx = 5;
 		gbc_cadDispLbl.gridy = 0;
 		homePanel.add(cadDispLbl, gbc_cadDispLbl);
 		cadDispLbl.setForeground(new Color(70, 130, 180));
 		cadDispLbl.setFont(new Font("Microsoft YaHei UI", Font.BOLD, 22));
 		cadDispLbl.setBackground(new Color(248, 248, 255));
+		
+		JLabel rightBorderEmptyLabel = new JLabel("   ");
+		GridBagConstraints gbc_rightBorderEmptyLabel = new GridBagConstraints();
+		gbc_rightBorderEmptyLabel.insets = new Insets(0, 0, 5, 0);
+		gbc_rightBorderEmptyLabel.gridx = 6;
+		gbc_rightBorderEmptyLabel.gridy = 0;
+		homePanel.add(rightBorderEmptyLabel, gbc_rightBorderEmptyLabel);
 		
 		JLabel label_9 = new JLabel("Total de Mesas:");
 		label_9.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 22));
@@ -276,7 +284,7 @@ public class GestaoFrame extends JFrame {
 		
 		GridBagConstraints gbc_mesDispLbl = new GridBagConstraints();
 		gbc_mesDispLbl.gridheight = 2;
-		gbc_mesDispLbl.insets = new Insets(0, 0, 5, 0);
+		gbc_mesDispLbl.insets = new Insets(0, 0, 5, 5);
 		gbc_mesDispLbl.gridx = 5;
 		gbc_mesDispLbl.gridy = 2;
 		homePanel.add(mesDispLbl, gbc_mesDispLbl);
@@ -315,7 +323,7 @@ public class GestaoFrame extends JFrame {
 		
 		GridBagConstraints gbc_jogDispLbl = new GridBagConstraints();
 		gbc_jogDispLbl.gridheight = 2;
-		gbc_jogDispLbl.insets = new Insets(0, 0, 5, 0);
+		gbc_jogDispLbl.insets = new Insets(0, 0, 5, 5);
 		gbc_jogDispLbl.gridx = 5;
 		gbc_jogDispLbl.gridy = 4;
 		homePanel.add(jogDispLbl, gbc_jogDispLbl);
@@ -340,6 +348,27 @@ public class GestaoFrame extends JFrame {
 		gbc_totCliLbl.gridx = 1;
 		gbc_totCliLbl.gridy = 6;
 		homePanel.add(totCliLbl, gbc_totCliLbl);
+		
+		JButton btnAtualizar = new JButton("Atualizar");
+		btnAtualizar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0){
+				diaAluguel = DiaAluguel.of(diaAluguel.getData());
+				try {
+					updateWorkstation("Informações atualizadas.");
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		});
+		btnAtualizar.setFont(new Font("Microsoft YaHei UI", Font.PLAIN, 14));
+		GridBagConstraints gbc_btnAtualizar = new GridBagConstraints();
+		gbc_btnAtualizar.fill = GridBagConstraints.HORIZONTAL;
+		gbc_btnAtualizar.gridheight = 2;
+		gbc_btnAtualizar.insets = new Insets(0, 0, 5, 5);
+		gbc_btnAtualizar.gridwidth = 2;
+		gbc_btnAtualizar.gridx = 4;
+		gbc_btnAtualizar.gridy = 6;
+		homePanel.add(btnAtualizar, gbc_btnAtualizar);
 		
 		clientePanel = new JPanel();
 		panelWorkstation.add(clientePanel, "clientePanel");
@@ -1217,7 +1246,7 @@ public class GestaoFrame extends JFrame {
 	
 	private void updateWorkstation(String feedback) throws SQLException{
 		updateWorkstation();
-		txtrInformaesAqui.setText(feedback);
+		txtrInformaesAqui.setText(feedback+" ["+new GregorianCalendar().getTime()+"]");
 		txtrInformaesAqui.setForeground(Color.RED);
 	}
 	

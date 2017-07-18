@@ -1,6 +1,5 @@
 package br.com.ibssoft.database.teste;
 
-import java.sql.SQLException;
 import java.time.LocalDate;
 
 import br.com.ibssoft.gestao.aluguel.DiaAluguel;
