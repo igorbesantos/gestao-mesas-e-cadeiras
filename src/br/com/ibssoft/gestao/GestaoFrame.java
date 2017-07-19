@@ -13,7 +13,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.text.DateFormat;
 import java.time.LocalDate;
 import java.util.GregorianCalendar;
 
@@ -37,6 +36,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.CompoundBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.border.SoftBevelBorder;
+
 import br.com.ibssoft.database.ClientesDAO;
 import br.com.ibssoft.database.ConnectionPool;
 import br.com.ibssoft.gestao.aluguel.DiaAluguel;
@@ -69,7 +69,7 @@ public class GestaoFrame extends JFrame {
 	private JLabel cadDispLbl = new JLabel("0");
 	private JLabel jogDispLbl = new JLabel("0");
 	private JLabel totCliLbl = new JLabel("0");
-	private ConnectionPool connectionPool;
+	private Connection connection;
 	private ClientesDAO clientesDAO;
 	private DiaAluguel diaAluguel;
 	private JButton btnEstInicio;
@@ -123,10 +123,10 @@ public class GestaoFrame extends JFrame {
 	 * Create the frame.
 	 */
 	public GestaoFrame(LocalDate dia) throws SQLException {
-		diaAluguel = DiaAluguel.of(dia);
+		connection = new ConnectionPool().getConnection();
+		clientesDAO = new ClientesDAO(connection);
+		diaAluguel = DiaAluguel.of(connection, dia);
 		dia=null;
-		connectionPool = new ConnectionPool();
-		clientesDAO = new ClientesDAO(connectionPool.getConnection());
 		
 		setTitle("Gest\u00E3o Mesas e Cadeiras");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -352,7 +352,7 @@ public class GestaoFrame extends JFrame {
 		JButton btnAtualizar = new JButton("Atualizar");
 		btnAtualizar.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0){
-				diaAluguel = DiaAluguel.of(diaAluguel.getData());
+				diaAluguel = DiaAluguel.of(connection, diaAluguel.getData());
 				try {
 					updateWorkstation("Informações atualizadas.");
 				} catch (SQLException e) {

@@ -5,8 +5,13 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
+import br.com.ibssoft.gestao.aluguel.Aluguel;
 import br.com.ibssoft.gestao.aluguel.DiaAluguel;
+import br.com.ibssoft.gestao.cliente.Cliente;
 import br.com.ibssoft.gestao.estoque.EstoqueCadeiras;
 import br.com.ibssoft.gestao.estoque.EstoqueJogos;
 import br.com.ibssoft.gestao.estoque.EstoqueMesas;
@@ -19,7 +24,7 @@ public class AlugueisDAO {
 		this.con = connection;
 	}
 	
-	public EstoqueJogos getEstoqueOf(LocalDate data) throws SQLException{
+	public EstoqueJogos getEstoqueOf(Connection connection, LocalDate data) throws SQLException{
 		if(!isDiaCadastrado(data)){
 			cadastraDia(data);
 		}
@@ -97,5 +102,43 @@ public class AlugueisDAO {
 		preparedStatement.setString(1, data.toString());
 		preparedStatement.executeQuery();
 		return preparedStatement.getResultSet().next();
+	}
+	
+	private Integer qtdAlugueisAPartirDe (LocalDate data) throws SQLException {
+		
+		return null;
+	}
+	
+	//Método para utilização bastante específica -REPENSAR IMPLEMENTAÇÂO
+	public String[][] dadosAlugueisAPartirDe(LocalDate data) throws SQLException {
+		String[][] dados = new String[qtdAlugueisAPartirDe(data)][4];
+		String cliente;
+		LocalDate localDate;
+		String dataFormatada;
+		Integer mesas;
+		Integer cadeiras;
+		ResultSet resultSet;
+		String sql = "SELECT a.DatAl as Data, c.Nom as Cliente, a.QtdMes as Mesas, a.QtdCad as Cadeiras "+
+				"FROM alugueis AS a JOIN clientes AS c ON (a.IdCli = c.IdCli) "+
+				"WHERE a.DatAl > ?";
+		PreparedStatement preparedStatement = con.prepareStatement(sql);
+		preparedStatement.setString(1, data.toString());
+		resultSet = preparedStatement.executeQuery();
+		for(int i=0; resultSet.next(); i++){
+			cliente = resultSet.getString("Cliente");			
+			mesas = resultSet.getInt("Mesas");			
+			cadeiras = resultSet.getInt("Cadeiras");
+			localDate = LocalDate.parse(resultSet.getString("Data"));
+			dataFormatada = localDate.format(DateTimeFormatter.ofPattern("dd/MM/yyyy"));
+			
+			dados[i][0]=dataFormatada;
+			dados[i][1]=cliente;
+			dados[i][2]=mesas.toString();
+			dados[i][3]=cadeiras.toString();
+		}
+		if(dados.length>0){
+			return dados;
+		}
+		return null;
 	}
 }
