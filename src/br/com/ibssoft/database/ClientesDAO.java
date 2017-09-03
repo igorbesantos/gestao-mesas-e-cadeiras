@@ -67,8 +67,13 @@ public class ClientesDAO {
 	}
 	
 	public boolean removeCliente(int id) throws SQLException{
-		String sql = "DELETE FROM CLIENTES WHERE IdCli=?";
+		String sql = "UPDATE alugueis SET IdCli=1 WHERE IdCli = ?";
 		PreparedStatement preparedStatement = con.prepareStatement(sql);
+		preparedStatement.setInt(1, id);
+		preparedStatement.execute();
+		
+		sql = "DELETE FROM CLIENTES WHERE IdCli=?";
+		preparedStatement = con.prepareStatement(sql);
 		preparedStatement.setInt(1, id);
 		preparedStatement.execute();
 		

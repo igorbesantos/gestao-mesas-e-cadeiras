@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 
 import br.com.ibssoft.database.AlugueisDAO;
-import br.com.ibssoft.database.ConnectionPool;
 import br.com.ibssoft.gestao.estoque.EstoqueJogos;
 
 public class DiaAluguel {

@@ -28,19 +28,6 @@ public class SelecionaContextoDialog extends JDialog {
 	private JDialog thisDialog;
 
 	/**
-	 * Launch the application.
-	 */
-	public static void main(String[] args) {
-		try {
-			SelecionaContextoDialog dialog = new SelecionaContextoDialog();
-			dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-			dialog.setVisible(true);
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
-	/**
 	 * Create the dialog.
 	 */
 	public SelecionaContextoDialog() {
@@ -78,6 +65,7 @@ public class SelecionaContextoDialog extends JDialog {
 		
 		
 		DatePicker datePicker = new DatePicker();
+		datePicker.setDate(LocalDate.now());
 		datePicker.getComponentDateTextField().setEditable(false);
 		GridBagConstraints gbc_datePicker = new GridBagConstraints();
 		gbc_datePicker.insets = new Insets(0, 0, 0, 5);

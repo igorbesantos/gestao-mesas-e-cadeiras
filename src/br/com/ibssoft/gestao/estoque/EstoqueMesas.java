@@ -5,8 +5,8 @@ import java.io.Serializable;
 public class EstoqueMesas implements Serializable{
 	
 	private static final long serialVersionUID = 1L;
-	private int totalMesas;
-	private int mesasAlugadas;
+	private Integer totalMesas;
+	private Integer mesasAlugadas;
 	
 	public EstoqueMesas (int total, int alugadas) throws IllegalArgumentException {
 		if ((total>=0)&&(alugadas>=0)){
@@ -27,15 +27,15 @@ public class EstoqueMesas implements Serializable{
 	}
 	
 	
-	public int getTotalMesas() {
+	public Integer getTotalMesas() {
 		return totalMesas;
 	}
-	public int getMesasAlugadas() {
+	public Integer getMesasAlugadas() {
 		return mesasAlugadas;
 	}
 	
 	
-	public int getMesasDisponiveis() {
+	public Integer getMesasDisponiveis() {
 		return this.totalMesas-this.mesasAlugadas;
 	}
 	
