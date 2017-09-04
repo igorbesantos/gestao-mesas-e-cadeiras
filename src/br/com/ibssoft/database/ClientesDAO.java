@@ -67,8 +67,13 @@ public class ClientesDAO {
 	}
 	
 	public boolean removeCliente(int id) throws SQLException{
-		String sql = "DELETE FROM CLIENTES WHERE IdCli=?";
+		String sql = "UPDATE alugueis SET IdCli=1 WHERE IdCli = ?";
 		PreparedStatement preparedStatement = con.prepareStatement(sql);
+		preparedStatement.setInt(1, id);
+		preparedStatement.execute();
+		
+		sql = "DELETE FROM CLIENTES WHERE IdCli=?";
+		preparedStatement = con.prepareStatement(sql);
 		preparedStatement.setInt(1, id);
 		preparedStatement.execute();
 		
@@ -77,5 +82,24 @@ public class ClientesDAO {
 			return true;
 		}
 		return false;
+	}
+
+	public Cliente buscaPorId(int id) throws SQLException {
+		Cliente cliente;
+		String nom, end, tel;
+		
+		String sql = "SELECT Nom, End, Tel FROM clientes WHERE IdCli = ?";
+		PreparedStatement preparedStatement = con.prepareStatement(sql);
+		preparedStatement.setInt(1, id);
+		ResultSet resultSet = preparedStatement.executeQuery();
+		if(resultSet.next()){
+			nom = resultSet.getString("Nom");
+			end = resultSet.getString("End");
+			tel = resultSet.getString("Tel");
+			cliente = new Cliente(nom, tel, end);
+			cliente.setId(id);
+			return cliente;
+		}
+		return null;
 	}
 }

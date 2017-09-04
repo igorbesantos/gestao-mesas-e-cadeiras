@@ -19,7 +19,7 @@ public class EstoqueJogos implements Serializable{
 		return cadeiras;
 	}
 	
-	public int getTotalJogos(){
+	public Integer getTotalJogos(){
 		int qtdMesas = mesas.getTotalMesas();
 		int qtdCadeiras = cadeiras.getTotalCadeiras();
 		
@@ -30,7 +30,7 @@ public class EstoqueJogos implements Serializable{
 		}
 	}
 	
-	public int getJogosDisponiveis(){
+	public Integer getJogosDisponiveis(){
 		int qtdMesas = mesas.getMesasDisponiveis();
 		int qtdCadeiras = cadeiras.getCadeirasDisponiveis();
 		
